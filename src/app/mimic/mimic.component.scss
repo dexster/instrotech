@@ -1,0 +1,23 @@
+@import "../../assets/style/typography";
+
+.table {
+  &-label {
+    @include t1;
+    margin-bottom: 16px;
+  }
+  &-header,
+  &-row {
+    @include t3;
+    display: flex;
+    height: 29px;
+    align-items: center;
+    > div {
+      padding-left: 16px;
+      flex: 1;
+    }
+
+  }
+  &-row:nth-child(odd) {
+    background-color: $tertiary-color;
+  }
+}

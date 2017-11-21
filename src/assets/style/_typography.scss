@@ -1,0 +1,226 @@
+@import 'palette';
+@import 'functions';
+
+$font-family: Lato, sans-serif;
+
+// Private variables. Do not use these directly
+$tx1-font-size: rem-calc(24);
+$tx2-font-size: rem-calc(16);
+$tx3-font-size: rem-calc(14);
+$tx4-font-size: rem-calc(12);
+$tx5-font-size: rem-calc(10);
+$tx6-font-size: rem-calc(8);
+// ---------------------------------------------
+
+$font-weight-regular: 400 !default;
+$font-weight-bold: 600 !default;
+
+@mixin text($font-size) {
+  font-family: $font-family;
+  font-size: $font-size;
+  letter-spacing: -.01em;
+  line-height: normal;
+}
+
+.t {
+  &1 {
+    @include text($tx1-font-size);
+    color: $white-color;
+  }
+  &2 {
+    @include text($tx2-font-size);
+
+  }
+  &3 {
+    @include text($tx3-font-size);
+  }
+  &4 {
+    @include text($tx4-font-size);
+  }
+  &5 {
+    @include text($tx5-font-size);
+  }
+  &6 {
+    @include text($tx6-font-size);
+  }
+}
+
+
+@mixin link {
+  color: $primary-color;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link {
+  color: $primary-color;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.inverse {
+  color: $white-color;
+}
+
+@mixin t1 {
+  @include text($tx1-font-size);
+}
+
+%t1 {
+  @include t1;
+}
+
+@mixin t2 {
+  @include text($tx2-font-size);
+  color: $white-color;
+  font-weight: $font-weight-regular;
+}
+
+@mixin t2-weight-bold {
+  @include text($tx2-font-size);
+  color: $white-color;
+  font-weight: $font-weight-bold;
+}
+
+@mixin t2-weight-reg-action {
+  @include text($tx2-font-size);
+  font-weight: $font-weight-regular;
+  color: $primary-color;
+}
+
+@mixin t2-action {
+  @include text($tx2-font-size);
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+}
+
+@mixin t2-inverse {
+  @include text($tx2-font-size);
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+}
+
+@mixin t3 {
+  @include text($tx3-font-size);
+  color: $white-color;
+  font-weight: $font-weight-regular;
+}
+
+@mixin t3-weight-bold {
+  @include text($tx3-font-size);
+  color: $white-color;
+  font-weight: $font-weight-bold;
+}
+
+@mixin t3-weight-reg-action {
+  @include text($tx3-font-size);
+  font-weight: $font-weight-regular;
+  color: $primary-color;
+}
+
+@mixin t3-action {
+  @include text($tx3-font-size);
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+}
+
+@mixin t3-inverse {
+  @include text($tx3-font-size);
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+}
+
+@mixin t4 {
+  @include text($tx4-font-size);
+  color: $white-color;
+  font-weight: $font-weight-regular;
+}
+
+@mixin t4-weight-bold {
+  @include text($tx4-font-size);
+  color: $white-color;
+  font-weight: $font-weight-bold;
+}
+
+@mixin t4-weight-reg-action {
+  @include text($tx4-font-size);
+  font-weight: $font-weight-regular;
+  color: $primary-color;
+}
+
+@mixin t4-action {
+  @include text($tx4-font-size);
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+}
+
+@mixin t4-inverse {
+  @include text($tx4-font-size);
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+}
+
+@mixin t5 {
+  @include text($tx5-font-size);
+  color: $white-color;
+  font-weight: $font-weight-regular;
+}
+
+@mixin t5-weight-bold {
+  @include text($tx5-font-size);
+  color: $white-color;
+  font-weight: $font-weight-bold;
+}
+
+@mixin t5-weight-reg-action {
+  @include text($tx5-font-size);
+  font-weight: $font-weight-regular;
+  color: $primary-color;
+}
+
+@mixin t5-action {
+  @include text($tx5-font-size);
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+}
+
+@mixin t5-inverse {
+  @include text($tx5-font-size);
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+}
+
+@mixin t6 {
+  @include text($tx6-font-size);
+  color: $white-color;
+  font-weight: $font-weight-regular;
+}
+
+@mixin t6-weight-bold {
+  @include text($tx6-font-size);
+  color: $white-color;
+  font-weight: $font-weight-bold;
+}
+
+@mixin t6-weight-reg-action {
+  @include text($tx6-font-size);
+  font-weight: $font-weight-regular;
+  color: $primary-color;
+}
+
+@mixin t6-action {
+  @include text($tx6-font-size);
+  font-weight: $font-weight-bold;
+  color: $primary-color;
+}
+
+@mixin t6-inverse {
+  @include text($tx6-font-size);
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+}
+

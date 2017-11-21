@@ -1,0 +1,41 @@
+@import "../assets/style/palette";
+@import "../assets/style/typography";
+
+.menu-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $tertiary-color;
+}
+
+.alert-menu {
+  @include t3-weight-bold;
+  background-color: $alarm-color;
+  height: 38px;
+  margin-left: 16px;
+  padding: 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > div {
+    margin: 0 8px;
+  }
+}
+
+.content-container {
+  padding: 0 30px;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+  @include t1;
+  background-color: $secondary-color;
+  height: 60px;
+  align-items: center;
+  > units {
+    display: flex;
+  }
+}

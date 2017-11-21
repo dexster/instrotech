@@ -1,0 +1,8 @@
+<div class="channel-label">CHANNEL</div>
+<div class="channel-number-container">
+    <mat-radio-group class="example-radio-group">
+        <mat-radio-button *ngFor="let channel of 32|times" [value]="channel" class="channel-type">
+            {{channel}}
+        </mat-radio-button>
+    </mat-radio-group>
+</div>

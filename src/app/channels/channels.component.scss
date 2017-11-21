@@ -1,0 +1,79 @@
+@import "../../assets/style/typography";
+
+:host {
+  margin-top: 16px;
+  padding-left: 18px;
+  height: 38px;
+  display: flex;
+  background-color: $tertiary-color;
+  align-items: center;
+}
+
+.channel-label {
+  @include t4;
+  margin-right: 24px;
+}
+
+.channel-number-container {
+  display: flex;
+  flex: 1;
+  max-width: 1280px;
+
+  mat-radio-group {
+    display: flex;
+    flex:1;
+  }
+
+  mat-radio-button {
+    @include t4;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    max-width: 1280px;
+    background-color: $tertiary-color;
+    cursor: pointer;
+    &.mat-radio-checked {
+      background-color: $primary-color;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    /deep/ {
+      .mat-radio-container {
+        width: 0;
+      }
+
+      .mat-radio-label {
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        padding-left: 0;
+        &-content {
+          padding: 0;
+        }
+      }
+
+      .mat-radio {
+        &-outer-circle,
+        &-inner-circle,
+        &-ripple {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.channel-number-contdainer {
+  display: flex;
+  flex: 1;
+  max-width: 1280px;
+  align-items: center;
+  div {
+    flex: 1;
+    @include t4-weight-bold;
+  }
+}
+

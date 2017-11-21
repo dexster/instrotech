@@ -1,0 +1,22 @@
+<p>
+    mimic works!
+</p>
+
+<div class="table-label">
+Channel position
+    </div>
+
+<div class="table">
+    <div class="table-header">
+        <div>CHANNEL NUMBER</div>
+        <div>LOCATION</div>
+        <div>HEIGHT</div>
+        <div>ALARM LEVEL</div>
+    </div>
+    <div class="table-row" *ngFor="let row of 32|times">
+        <div>{{row}}</div>
+        <div>left</div>
+        <div>12.345m</div>
+        <div>10%</div>
+    </div>
+</div>

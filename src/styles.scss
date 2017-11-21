@@ -1,0 +1,44 @@
+@import '../node_modules/@angular/material/theming';
+@import "assets/style/palette";
+@import "assets/style/typography";
+@import "assets/style/material";
+@import "assets/style/material-components";
+
+body {
+  margin: 0;
+  background-color: $secondary-color;
+  //background: linear-gradient(to right, #313b54, $tertiary-color);
+  @include t5;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  .content {
+    background-color: $secondary-color;
+    flex: 1;
+  }
+}
+
+.chart-header {
+  @include t4;
+  text-transform: uppercase;
+}
+
+.chart-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.axis {
+  path {
+    stroke: $white-color;
+  }
+  .tick line {
+    visibility: hidden;
+  }
+}

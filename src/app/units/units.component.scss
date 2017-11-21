@@ -1,0 +1,49 @@
+@import "../../assets/style/typography";
+
+mat-radio-group {
+  display: flex;
+}
+
+.unit-type-container {
+  margin-top: 16px;
+
+  mat-radio-button {
+    @include t4;
+    display: flex;
+    justify-content: center;
+    &:first-child {
+      margin-left: 0;
+    }
+
+    /deep/ {
+      .mat-radio-container {
+        width: 0;
+      }
+
+      .mat-radio-label {
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        padding-left: 0;
+      }
+
+      .mat-radio {
+        &-outer-circle,
+        &-inner-circle,
+        &-ripple {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.unit-type {
+  background-color: $tertiary-color;
+  cursor: pointer;
+  width: 70px;
+  height: 38px;
+  &.mat-radio-checked {
+    background-color: $primary-color;
+  }
+}

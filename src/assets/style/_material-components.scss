@@ -1,0 +1,156 @@
+.mat-sidenav-container {
+  @include t5;
+}
+
+mat-icon {
+  vertical-align: bottom;
+  &.medium {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+  &.small {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+  }
+  &.inverse {
+    color: $white-color;
+  }
+  &.primary {
+    color: $primary-color;
+  }
+}
+
+.mat-form-field {
+  width: 100%;
+  line-height: inherit;
+
+  &:not(mat-focused) label {
+    color: $secondary-color !important;
+  }
+
+  &.input-inverse {
+    label {
+      @include t4-inverse;
+      color: $white-color !important;
+      &.mat-input-placeholder.mat-input-placeholder {
+        @include t4-inverse;
+        color: $white-color !important;
+      }
+    }
+  }
+
+  [mat-placeholder] {
+    @include t6;
+  }
+
+  &.prefixed-placeholder {
+    .mat-input-placeholder-wrapper {
+      left: -16px;
+    }
+  }
+}
+
+.mat-slider-horizontal {
+  width: 100%;
+}
+
+.mat-checkbox {
+  @include t5;
+}
+
+.mat-spinner {
+  &,
+  & > svg {
+    height: 40px !important;
+    width: 40px !important;
+  }
+}
+
+.mat-option.mat-option,
+.mat-select-value.mat-select-value {
+  @include t5;
+  line-height: 48px;
+}
+
+.mat-ink-bar {
+  height: 3px !important;
+  background-color: $primary-color !important;
+}
+
+.mat-tab-nav-bar {
+@include t5;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: space-between;
+  align-items: flex-end;
+  height: 58px;
+  padding: 0 0 0 0;
+  margin: 0;
+  border-style: none;
+  .mat-tab-list {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.mat-tab {
+  &-link {
+    min-width: 100px !important;
+    text-transform: uppercase;
+    @include t3-weight-bold;
+    opacity: 1 !important;
+  }
+  &-label-active {
+    @include t3-action;
+    color: $primary-color !important;
+  }
+  &-body-content {
+    overflow: hidden !important;
+  }
+}
+
+snack-bar-container.success-snackbar {
+  background-color: $positive-color;
+}
+
+.mat-dialog {
+  &-container {
+    padding: 0 !important;
+    display: block;
+    border-radius: 2px;
+  }
+
+  &-title {
+    margin: 0 !important;
+    padding: 16px;
+    display: block;
+    @include t2-inverse;
+    background-color: $secondary-color;
+  }
+
+  &-content {
+    display: block;
+    padding: 16px 16px 0 !important;
+    margin: auto !important;
+    @include t5;
+  }
+
+  &-actions {
+    padding-top: 16px !important;
+    padding-bottom: 8px !important;
+  }
+
+  &-actions:last-child {
+    margin-bottom: 0 !important;
+    justify-content: flex-end;
+    padding-right: 16px;
+  }
+}
+
+.cdk-overlay {
+  max-width: 80%;
+  width: 50%;
+}
