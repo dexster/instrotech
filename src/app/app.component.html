@@ -1,29 +1,27 @@
-<div class="content">
-    <div class="menu-bar">
-        <nav mat-tab-nav-bar>
-            <a mat-tab-link
-               *ngFor="let link of navLinks"
-               [routerLink]="link.path"
-               routerLinkActive #rla="routerLinkActive"
-               [active]="rla.isActive">
-                {{link.label}}
-            </a>
-        </nav>
-        <div class="alert-menu">
-            <mat-icon>notifications</mat-icon>
-            <div>
-                ALARM ALERT
-            </div>
-            <mat-icon>arrow_drop_down</mat-icon>
+<div class="menu-bar">
+    <nav mat-tab-nav-bar>
+        <a mat-tab-link
+           *ngFor="let link of navLinks"
+           [routerLink]="link.path"
+           routerLinkActive #rla="routerLinkActive"
+           [active]="rla.isActive">
+            {{link.label}}
+        </a>
+    </nav>
+    <div class="alert-menu">
+        <mat-icon>notifications</mat-icon>
+        <div>
+            ALARM ALERT
         </div>
+        <mat-icon>arrow_drop_down</mat-icon>
     </div>
-    <div class="content-container">
-        <div class="header">
-            <div>Lethabo Power Station</div>
-            <units></units>
-        </div>
-        <div class="main-container">
-            <router-outlet></router-outlet>
-        </div>
+</div>
+<div class="content-container">
+    <div class="header">
+        <div>Lethabo Power Station</div>
+        <units></units>
+    </div>
+    <div class="main-container">
+        <router-outlet></router-outlet>
     </div>
 </div>

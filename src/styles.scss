@@ -4,11 +4,21 @@
 @import "assets/style/material";
 @import "assets/style/material-components";
 
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
 body {
   margin: 0;
   background-color: $secondary-color;
-  //background: linear-gradient(to right, #313b54, $tertiary-color);
   @include t5;
+}
+
+.content {
+  height: 100%;
+  width: 100%;
 }
 
 .main-container {
@@ -16,14 +26,13 @@ body {
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  .content {
-    background-color: $secondary-color;
-    flex: 1;
-  }
+  flex: 1;
+  margin-top: 16px;
+
 }
 
 .chart-header {
-  @include t4;
+  @include t2;
   text-transform: uppercase;
 }
 
@@ -32,6 +41,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: linear-gradient(118deg, #313b54, $tertiary-color);
 }
 
 .axis {
