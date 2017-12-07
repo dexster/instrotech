@@ -3,7 +3,7 @@ import {GRAPH_DATA} from '../chartConfig';
 import * as d3 from 'd3';
 
 @Component({
-    selector: 'app-unit-overview',
+    selector: 'unit-overview',
     templateUrl: './unit-overview.component.html',
     styleUrls: ['./unit-overview.component.scss']
 })

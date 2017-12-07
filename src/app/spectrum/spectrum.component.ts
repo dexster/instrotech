@@ -3,7 +3,7 @@ import {GRAPH_DATA} from '../chartConfig';
 import * as d3 from 'd3';
 
 @Component({
-    selector: 'app-spectrum',
+    selector: 'spectrum',
     templateUrl: './spectrum.component.html',
     styleUrls: ['./spectrum.component.scss']
 })

@@ -1,6 +1,11 @@
 @import "../assets/style/palette";
 @import "../assets/style/typography";
 
+:host {
+  display: grid;
+  grid-template-rows: 57px auto;
+}
+
 .menu-bar {
   display: flex;
   justify-content: center;
@@ -24,9 +29,6 @@
 
 .content-container {
   padding: 0 30px;
-  display: flex;
-  flex-direction: column;
-  height: 80%;
 }
 .header {
   width: 100%;

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-mimic',
+  selector: 'mimic',
   templateUrl: './mimic.component.html',
   styleUrls: ['./mimic.component.scss']
 })
