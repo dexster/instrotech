@@ -40,7 +40,7 @@ export class SpectrumComponent implements AfterViewInit, OnDestroy {
     }
 
     dispatch(data) {
-        console.log(data);
+        // console.log(data);
         switch (data.tag) {
             case 'fft':
                 SpectrumComponent.fft.fft_draw(data.fft);
