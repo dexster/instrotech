@@ -1,17 +1,58 @@
-import {AfterViewInit, Component, Inject, OnInit} from '@angular/core';
-import {GRAPH_DATA} from '../chartConfig';
+import { AfterViewInit, Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { GRAPH_DATA } from '../chartConfig';
 import * as d3 from 'd3';
+import { IQL_MODULE, IQL } from '../iql';
+import { FFT_MODULE, FFT } from '../fft';
 
 @Component({
     selector: 'spectrum',
     templateUrl: './spectrum.component.html',
     styleUrls: ['./spectrum.component.scss']
 })
-export class SpectrumComponent implements AfterViewInit {
 
+export class SpectrumComponent implements AfterViewInit, OnDestroy {
+
+    static iql: IQL;
+    static fft: FFT;
     svg: any;
+    connection: any;
 
-    constructor(@Inject(GRAPH_DATA) private graphConfig) {
+    constructor( @Inject(GRAPH_DATA) private graphConfig, @Inject(IQL_MODULE) private iql, @Inject(FFT_MODULE) private fft) {
+        SpectrumComponent.iql = iql;
+        SpectrumComponent.fft = fft;
+        this.connection = SpectrumComponent.iql.connect(this.connected, this.disconnected, this.dispatch);
+    }
+
+    ngOnDestroy() {
+        this.connection.close();
+    }
+
+    connected() {
+        console.log('connected!');
+
+        SpectrumComponent.iql.query([
+            'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
+            'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
+            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
+            'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
+        ]);
+
+    }
+
+    dispatch(data) {
+        console.log(data);
+        switch (data.tag) {
+            case 'fft':
+                SpectrumComponent.fft.fft_draw(data.fft);
+                break;
+            case 'metrics':
+                SpectrumComponent.fft.metrics_draw(data.samples);
+                break;
+        }
+    }
+
+    disconnected() {
+        console.log('disconnected!');
     }
 
     ngAfterViewInit() {
@@ -19,21 +60,25 @@ export class SpectrumComponent implements AfterViewInit {
     }
 
     render() {
-        d3.select("#spectrum > svg").remove();
-        this.svg = d3.select("#spectrum").append('svg');
-        let margin = {top: 20, right: 40, bottom: 30, left: 40},
-            width = parseInt(this.svg.style("width")) - margin.left - margin.right,
-            height = parseInt(this.svg.style("height")) - margin.top - margin.bottom,
-            g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        var parseTime = d3.timeParse("%d-%b-%y");
+        this.fft.fft_setup();
 
-        var x = d3.scaleTime()
+        /*
+        d3.select('#spectrum > svg').remove();
+        this.svg = d3.select('#spectrum').append('svg');
+        const margin = { top: 20, right: 40, bottom: 30, left: 40 },
+            width = parseInt(this.svg.style('width'), 10) - margin.left - margin.right,
+            height = parseInt(this.svg.style('height'), 10) - margin.top - margin.bottom,
+            g = this.svg.append('g').attr('transfor', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        const parseTime = d3.timeParse('%d-%b-%y');
+
+        const x = d3.scaleTime()
             .rangeRound([0, width]);
 
-        var y = d3.scaleLinear()
+        const y = d3.scaleLinear()
             .rangeRound([height, 0]);
 
-        var area = d3.area()
+            const area = d3.area()
             .x(function (d) {
                 return x(d.date);
             })
@@ -84,6 +129,7 @@ export class SpectrumComponent implements AfterViewInit {
                 .call(d3.axisLeft(y))
                 .append("text");
         });
+        */
 
         d3.select(window).on('resize', () => {
             this.render();
