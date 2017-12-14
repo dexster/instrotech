@@ -40,11 +40,16 @@ export class FFT {
 
         // ... initialise static chart area
 
-        const margin = { top: 20, right: 20, bottom: 150, left: 40 };
-        // const width = 960 - margin.left - margin.right;
-        const width = document.documentElement.getBoundingClientRect().width - margin.left - margin.right;
-        // const height = 480 - margin.top - margin.bottom;
-        const height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom;
+        const margin = { top: 20, right: 40, bottom: 150, left: 40 };
+        // const width = document.documentElement.getBoundingClientRect().width - margin.left - margin.right;
+        // const height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom;
+
+        const width = d3.select('#spectrum').node().getBoundingClientRect().width - margin.left - margin.right;
+        let height = d3.select('#spectrum').node().getBoundingClientRect().height - margin.top - margin.bottom;
+
+        if (height <= 0) {
+            height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom * 3;
+        }
 
 console.log('width: ' + width + ', height: ' + height);
 
