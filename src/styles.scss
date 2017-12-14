@@ -44,22 +44,34 @@ body {
   background: linear-gradient(118deg, #313b54, $tertiary-color);
 }
 
+.grid {
+  .tick line {
+    fill: none;
+  }
+}
+
 .axis {
   path {
     stroke: $white-color;
   }
+  text {
+    fill: $white-color;
+  }
   .tick line {
-    visibility: hidden;
+    stroke: none;
+  }
+  .tick text {
+    fill: $white-color;
   }
 }
 
 .fft {
-  fill: steelblue;
+  fill: $primary-color;
 }
 
 .max {
-  fill:   steelblue;
+  fill: $primary-color;
   opacity: 0.25;
-  stroke: steelblue;
+  stroke: $primary-color;
   stroke-width: 2;
 }
