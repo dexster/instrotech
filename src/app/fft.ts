@@ -51,8 +51,6 @@ export class FFT {
             height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom * 3;
         }
 
-console.log('width: ' + width + ', height: ' + height);
-
         const x = d3.scaleLinear()
             .range([0, width])
             .domain([0, 22000]);
@@ -60,7 +58,7 @@ console.log('width: ' + width + ', height: ' + height);
         const y = d3.scaleLinear()
             .range([height, 0])
             .domain([0, 100]);
-            // .domain([-80, 0]);
+        // .domain([-80, 0]);
 
         const xAxis = d3.axisBottom(x)
             .ticks(10)
