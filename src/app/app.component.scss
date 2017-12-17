@@ -1,12 +1,18 @@
 @import "../assets/style/palette";
 @import "../assets/style/typography";
 
-:host {
+.container {
   display: grid;
-  grid-template-rows: 57px auto;
+  grid-template-columns: 1fr;
+  grid-template-rows: 57px 57px 600px;
+  grid-template-areas: "menu"
+  "header"
+  "dashboard";
+  grid-gap: 24px 24px;
 }
 
 .menu-bar {
+  grid-area: menu;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -30,7 +36,9 @@
 .content-container {
   padding: 0 30px;
 }
+
 .header {
+  grid-area: header;
   width: 100%;
   justify-content: space-between;
   display: flex;
