@@ -1,8 +1,7 @@
 import { AfterViewInit, Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { GRAPH_DATA } from '../chartConfig';
 import * as d3 from 'd3';
-import { IQL_MODULE, IQL } from '../iql';
-import { FFT_MODULE, FFT } from '../fft';
+import { IQLService } from '../iql';
+import { FFTService } from '../fft';
 
 @Component({
     selector: 'spectrum',
@@ -10,17 +9,21 @@ import { FFT_MODULE, FFT } from '../fft';
     styleUrls: ['./spectrum.component.scss']
 })
 
-export class SpectrumComponent implements AfterViewInit, OnDestroy {
+export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    static iql: IQL;
-    static fft: FFT;
     svg: any;
     connection: any;
+    isFftSetup = false;
 
-    constructor( @Inject(GRAPH_DATA) private graphConfig, @Inject(IQL_MODULE) private iql, @Inject(FFT_MODULE) private fft) {
-        SpectrumComponent.iql = iql;
-        SpectrumComponent.fft = fft;
-        this.connection = SpectrumComponent.iql.connect(this.connected, this.disconnected, this.dispatch);
+    constructor(private iql: IQLService, private fft: FFTService) {
+    }
+
+    ngOnInit() {
+        const boundConnected = this.connected.bind(this);
+        const boundDisconnected = this.disconnected.bind(this);
+        const boundDispatch = this.dispatch.bind(this);
+
+        this.connection = this.iql.connect(boundConnected, boundDisconnected, boundDispatch);
     }
 
     ngOnDestroy() {
@@ -30,26 +33,30 @@ export class SpectrumComponent implements AfterViewInit, OnDestroy {
     connected() {
         console.log('connected!');
 
-        SpectrumComponent.iql.query([
-            'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
-            'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
-            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
-            'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
+        this.iql.query([
+            // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
+            'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 100 ms'// ,
+            // 'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
+            // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
         ]);
-
     }
 
     dispatch(data) {
         // console.log(data);
         switch (data.tag) {
             case 'fft':
-                SpectrumComponent.fft.fft_draw(data.fft);
+                if (this.isFftSetup) {
+                    this.fft.fft_draw(data.fft);
+                } else { console.log('no ready'); }
                 break;
-/*
-            case 'metrics':
-                SpectrumComponent.fft.metrics_draw(data.samples);
+            case 'maxfft':
+                console.table(data);
                 break;
-*/
+            /*
+                        case 'metrics':
+                            SpectrumComponent.fft.metrics_draw(data.samples);
+                            break;
+            */
         }
     }
 
@@ -63,6 +70,7 @@ export class SpectrumComponent implements AfterViewInit, OnDestroy {
 
     render() {
         this.fft.fft_setup();
+        this.isFftSetup = true;
 
         d3.select(window).on('resize', () => {
             d3.select('#spectrum > svg').remove();

@@ -1,208 +1,133 @@
-import {NgModule, InjectionToken} from '@angular/core';
+import { Injectable } from '@angular/core';
 
-export const IQL_MODULE = new InjectionToken<any>('IQL module');
+@Injectable()
+export class IQLService {
 
-@NgModule({
-  providers: [{
-      provide: IQL_MODULE, useValue: new IQL()
-  }]
-})
-
-export class IQL {
-
-  static connection;
-  static audio;
-  static isConnected = false;
-  static isConnecting = false;
-  static watchdogTimer = null;
-  static isListening = false;
+    private connection;
+    private audio;
+    private isConnected = false;
+    private isConnecting = false;
+    private watchdogTimer = null;
+    private isListening = false;
 
 
-  /*
-   * WATCHDOG
-   */
+    /*
+     * WATCHDOG
+     */
 
-  watchdog() {
-    // console.log("WATCHDOG <" + isConnected + "><" + isConnecting + ">  " + new Date());
+    watchdog(connectedCallback) {
+        // console.log("WATCHDOG <" + isConnected + "><" + isConnecting + ">  " + new Date());
 
-    if (!IQL.isConnected && !IQL.isConnecting) {
-      console.log('WATCHDOG <RECONNECT>  ' + new Date());
-      this.connect();
+        if (!this.isConnected && !this.isConnecting) {
+            console.log('WATCHDOG <RECONNECT>  ' + new Date());
+            this.connect(connectedCallback);
+        }
     }
-  }
 
+    public connect(connectedCallback: any = null, disconnectedCallback: any = null, dispatchCallback: any = null) {
+        const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
+        const wsurl = 'ws://' + host + '/websockets/iql.js';
+        const that = this;
 
-  /*
-   * IQL WEBSOCKET
-   */
+        this.connection = new WebSocket(wsurl);
 
-  dispatch(resultset) {
-    const tag = resultset.tag;
+        this.connection.onopen = function (event) {
+            console.log(' -- CONNECTED');
+            that.isConnected = true;
+            that.isConnecting = false;
+            if (typeof connectedCallback === 'function') {
+                connectedCallback();
+            }
+        };
 
-    console.log(resultset);
+        this.connection.onclose = function (event) {
+            console.log(' -- DISCONNECTED');
+            that.isConnected = false;
+            that.isConnecting = false;
+            if (typeof disconnectedCallback === 'function') {
+                disconnectedCallback();
+            }
+        };
 
-    // if (tag === 'modules') {
-    //   configure(resultset);
-    // }
+        this.connection.onmessage = function (event) {
+            if (typeof dispatchCallback === 'function') {
+                // dispatch(JSON.parse(event.data));
+                dispatchCallback(JSON.parse(event.data));
+            }
+        };
 
-    // if (tag === 'summary') {
-    //   summary(resultset);
-    // }
+        this.connection.onerror = function (err) {
+            console.log('ERROR: ' + err);
+        };
 
-    // if (tag === 'fft') {
-    //   fft_draw(resultset.fft);
-    // }
+        window.clearInterval(this.watchdogTimer);
+        this.watchdogTimer = window.setInterval(() => this.watchdog(connectedCallback), 2500);
+        this.isConnecting = true;
 
-    // if (tag === 'metrics') {
-    //   metrics_draw(resultset.samples);
-    // }
-
-    // if (tag === 'chart') {
-    //   var start = new Date(resultset.start);
-    //   var end = new Date(resultset.end);
-    //   var data = resultset.trace;
-
-    //   chart_draw(start, end, data);
-    // }
-
-    // if (tag === 'dbaudio') {
-    //   plotAudio(resultset);
-    // }
-
-    // if (tag === 'dbevents') {
-    //   plotEvents(resultset);
-    // }
-
-    // if (tag === 'din') {
-    //   digitalInputs(resultset.records);
-    // }
-
-    // if (tag === 'dout') {
-    //   digitalOutputs(resultset.records);
-    // }
-
-    // if (tag === 'ain') {
-    //   analogInputs(resultset.records);
-    // }
-
-    // if (tag === 'aout') {
-    //   analogOutputs(resultset.records);
-    // }
-
-    // if (tag === 'modbus') {
-    //   modbus(resultset.records);
-    // }
-
-    // if (tag === 'sysinfo') {
-    //   sysinfo(resultset.records);
-    // }
-
-    // if (tag === 'audio') {
-    //   listen_play(resultset.rate, resultset.audio);
-    // }
-  }
-
-  public connect(connectedCallback: any = null, disconnectedCallback: any = null, dispatchCallback: any = null) {
-    const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
-    const wsurl = 'ws://' + host + '/websockets/iql.js';
-
-    IQL.connection = new WebSocket(wsurl);
-
-    IQL.connection.onopen = function (event) {
-      console.log(' -- CONNECTED');
-      IQL.isConnected = true;
-      IQL.isConnecting = false;
-      if (typeof connectedCallback === 'function') {
-        connectedCallback();
-      }
-    };
-
-    IQL.connection.onclose = function (event) {
-      console.log(' -- DISCONNECTED');
-      IQL.isConnected = false;
-      IQL.isConnecting = false;
-      if (typeof disconnectedCallback === 'function') {
-        disconnectedCallback();
-      }
-    };
-
-    IQL.connection.onmessage = function (event) {
-      if (typeof dispatchCallback === 'function') {
-        // dispatch(JSON.parse(event.data));
-        dispatchCallback(JSON.parse(event.data));
-      }
-    };
-
-    IQL.connection.onerror = function (err) {
-      console.log('ERROR: ' + err);
-    };
-
-    window.clearInterval(IQL.watchdogTimer);
-    IQL.watchdogTimer = window.setInterval(this.watchdog, 2500);
-    IQL.isConnecting = true;
-
-    return IQL.connection;
-  }
-
-  query(iql) {
-    if (Array.isArray(iql)) {
-      IQL.connection.send(iql.join(';'));
-    } else {
-      IQL.connection.send(iql);
+        return this.connection;
     }
-  }
 
-  execute(iql) {
-    const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
-    const wsurl = 'ws://' + host + '/websockets/iql.js';
-    const socket = new WebSocket(wsurl);
+    query(iql) {
+        if (this.isConnected) {
+            if (Array.isArray(iql)) {
+                this.connection.send(iql.join(';'));
+            } else {
+                this.connection.send(iql);
+            }
+        }
+    }
 
-    socket.onopen = function (event) {
-      socket.send(iql);
-      socket.close();
-    };
+    execute(iql) {
+        const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
+        const wsurl = 'ws://' + host + '/websockets/iql.js';
+        const socket = new WebSocket(wsurl);
 
-    socket.onclose = function (event) {
-    };
+        socket.onopen = function (event) {
+            socket.send(iql);
+            socket.close();
+        };
 
-    socket.onerror = function (event) {
-    };
+        socket.onclose = function (event) {
+        };
 
-    socket.onmessage = function (event) {
-    };
-  }
+        socket.onerror = function (event) {
+        };
 
-  listen(iql) {
-    const host = '192.168.1.114:8080'; // window.location.host;
-    const wsurl = 'ws://' + host + '/websockets/listen.js';
+        socket.onmessage = function (event) {
+        };
+    }
 
-    IQL.audio = new WebSocket(wsurl);
+    listen(iql) {
+        const host = '192.168.1.114:8080'; // window.location.host;
+        const wsurl = 'ws://' + host + '/websockets/listen.js';
 
-    IQL.audio.onopen = function (event) {
-      console.log(' -- LISTEN: CONNECTED');
-      // play_start();
-      IQL.isListening = true;
-      // listening(true);
-      IQL.audio.send(iql);
-    };
+        this.audio = new WebSocket(wsurl);
 
-    IQL.audio.onclose = function (event) {
-      console.log(' -- LISTEN: DISCONNECTED');
-      IQL.isListening = false;
-      // listening(false);
-      // play_stop();
-    };
+        this.audio.onopen = function (event) {
+            console.log(' -- LISTEN: CONNECTED');
+            // play_start();
+            this.isListening = true;
+            // listening(true);
+            this.audio.send(iql);
+        };
 
-    IQL.audio.onerror = function (event) {
-      console.log(' --- AUDIO ERROR');
-    };
+        this.audio.onclose = function (event) {
+            console.log(' -- LISTEN: DISCONNECTED');
+            this.isListening = false;
+            // listening(false);
+            // play_stop();
+        };
 
-    IQL.audio.onmessage = function (event) {
-      this.dispatch(JSON.parse(event.data));
-    };
-  }
+        this.audio.onerror = function (event) {
+            console.log(' --- AUDIO ERROR');
+        };
 
-  unlisten() {
-    IQL.audio.close();
-  }
+        this.audio.onmessage = function (event) {
+            this.dispatch(JSON.parse(event.data));
+        };
+    }
+
+    unlisten() {
+        this.audio.close();
+    }
 }

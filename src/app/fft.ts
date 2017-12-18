@@ -1,19 +1,12 @@
-import { NgModule, InjectionToken } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as d3 from 'd3';
 
-export const FFT_MODULE = new InjectionToken<any>('FFT module');
+@Injectable()
+export class FFTService {
 
-@NgModule({
-    providers: [{
-        provide: FFT_MODULE, useValue: new FFT()
-    }]
-})
-
-export class FFT {
-
-    static FFTs = [];
-    static fft;
-    static max;
+    private FFTs = [];
+    private max;
+    private fft;
 
     make_x_axis(x) {
         return d3.axisBottom(x).ticks(10);
@@ -30,7 +23,7 @@ export class FFT {
         const N = 128;
 
         for (let i = 0; i < 64; i++) {
-            FFT.FFTs[i] = {
+            this.FFTs[i] = {
                 frequency: (i * fs / (N - 2)).toString(),
                 dbv: -100.0,
                 max: -100.0,
@@ -58,7 +51,6 @@ export class FFT {
         const y = d3.scaleLinear()
             .range([height, 0])
             .domain([0, 100]);
-        // .domain([-80, 0]);
 
         const xAxis = d3.axisBottom(x)
             .ticks(10)
@@ -95,100 +87,70 @@ export class FFT {
 
         // ... setup FFT line
 
-        FFT.fft = d3.area()
-            // .interpolate("cardinal")
+        this.fft = d3.area()
             .x(function (d) { return x(d.frequency); })
             .y0(height)
             .y1(function (d) { return y(100 + d.dbv); })
             .curve(d3.curveCardinal);
 
         body.append('path')
-            .data([FFT.FFTs])
+            .data([this.FFTs])
             .attr('id', 'fftx')
             .attr('class', 'fft')
-            .attr('d', FFT.fft);
+            .attr('d', this.fft);
 
         // ... setup MAX line
 
-        FFT.max = d3.area()
-            // .interpolate("cardinal")
+        this.max = d3.area()
             .x(function (d) { return x(d.frequency); })
             .y0(height)
             .y1(function (d) { return y(d.max); })
             .curve(d3.curveCardinal);
 
-
         body.append('path')
-            .data([FFT])
+            .data([this.FFTs])
             .attr('id', 'maxx')
             .attr('class', 'max')
-            .attr('d', FFT.max);
-
-        // ... draw grid
-
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('stroke-opacity', '0')
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(this.make_x_axis(x)
-                .tickSize(-height, 0, 0)
-                .tickFormat(''));
-
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('stroke-opacity', '0')
-            .call(this.make_y_axis(y, 10)
-                .tickSize(-width, 0, 0)
-                .tickFormat(''));
+            .attr('d', this.max);
 
         // ... draw X-axis label
 
         svg.append('g')
-            // .attr('id', 'garethx')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + height + ')')
             .call(xAxis)
             .append('text')
             .attr('x', width / 2)
             .attr('dy', '3.5em')
-            .style('text-anchor', 'end')
-            .text('FREQUENCY (kHz)');
+            .style('text-anchor', 'middle')
+            .text('FREQUENCY (Hz)');
 
         // ... draw Y-axis label
 
         svg.append('g')
-            // .attr('id', 'garethy')
             .attr('class', 'y axis')
             .call(yAxis)
             .append('g')
-            // .style('text-anchor', 'end')
             .append('text')
-            .attr('y', 6)
             .attr('x', -(height / 2))
             .attr('dy', '-2.75em')
-            .style('text-anchor', 'start')
-            .attr('transform', 'rotate(270,12,19)')
+            .style('text-anchor', 'middle')
+            .attr('transform', 'rotate(270,0,0)')
             .text('LEVEL (dB)');
-
-        // ... draw outline
-
-        // svg.append('rect')
-        //     .attr('x', 0)
-        //     .attr('y', 0)
-        //     .attr('height', height)
-        //     .attr('width', width)
-        //     .attr('fill', 'none')
-        //     .attr('stroke', '#808080')
-        //     .attr('stroke-width', 1);
     }
 
     fft_draw(data) {
+        // const newdata = data.map((d) => 100 + d.dbv);
+        // const maxnewdata = d3.max(newdata);
+        // const o = data.find((d) => 100 + d.dbv === maxnewdata);
+        // console.log('max dbv = ' + parseInt(100 + o.dbv, 10) + ' @ ' + o.frequency + ' Hz');
+
         const svg = d3.select('#spectrum');
 
-        svg.selectAll('#fftx')
+        svg.select('#fftx')
             .data([data])
             .transition()
-            .attr('d', FFT.fft);
+            .attr('d', this.fft);
     }
 
     metrics_draw(data) {
@@ -197,6 +159,6 @@ export class FFT {
         svg.selectAll('#maxx')
             .data([data])
             .transition()
-            .attr('d', FFT.max);
+            .attr('d', this.max);
     }
 }

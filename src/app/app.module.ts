@@ -19,8 +19,8 @@ import { TrendComponent } from './trend/trend.component';
 import { SpectrumComponent } from './spectrum/spectrum.component';
 import {ChannelsComponent} from './channels/channels.component';
 import {UnitsComponent} from './units/units.component';
-import { IQL } from './iql';
-import { FFT } from './fft';
+import { IQLService } from './iql';
+import { FFTService } from './fft';
 
 @NgModule({
     declarations: [
@@ -41,11 +41,9 @@ import { FFT } from './fft';
         MatTabsModule,
         MatIconModule,
         MatRadioModule,
-        GraphConfigModule,
-        IQL,
-        FFT
+        GraphConfigModule
     ],
-    providers: [appRoutingProviders],
+    providers: [appRoutingProviders, IQLService, FFTService],
     bootstrap: [AppComponent]
 })
 export class AppModule {
