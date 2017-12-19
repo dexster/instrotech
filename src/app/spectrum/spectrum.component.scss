@@ -1,7 +1,3 @@
-:host {
-  height: 100%
-}
-
 ::ng-deep .chart div {
   font: 10px sans-serif;
   background-color: steelblue;
@@ -13,12 +9,4 @@
 
 .axis path {
   /*display: none;*/
-}
-.chart-container,
-#spectrum {
-  height: 100%;
-  > ::ng-deep svg {
-    width: 100%;
-    height: 100%;
-  }
 }
