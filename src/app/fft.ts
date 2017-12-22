@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
 @Injectable()
@@ -45,19 +45,23 @@ export class FFTService {
         }
 
         const x = d3.scaleLinear()
-            .range([0, width])
-            .domain([0, 22000]);
+            .domain([0, 22000])
+            .range([0, width]);
 
         const y = d3.scaleLinear()
-            .range([height, 0])
-            .domain([0, 100]);
+            .domain([0, 100])
+            .range([height, 0]);
 
         const xAxis = d3.axisBottom(x)
             .ticks(10)
+            .tickSize(0)
+            .tickPadding(10)
             .tickFormat(d3.format('d'));
 
         const yAxis = d3.axisLeft(y)
             .ticks(6)
+            .tickSize(0)
+            .tickPadding(10)
             .tickFormat(d3.format('d'));
 
         const svg = d3.select('#spectrum').append('svg')
@@ -79,11 +83,6 @@ export class FFTService {
 
         const body = svg.append('g')
             .attr('clip-path', 'url(#clip)');
-
-        const rect = body.append('svg:rect')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill-opacity', '0');
 
         // ... setup FFT line
 

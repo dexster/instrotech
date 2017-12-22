@@ -44,21 +44,12 @@ body {
   background: linear-gradient(118deg, #313b54, $tertiary-color);
 }
 
-.grid {
-  .tick line {
-    fill: none;
-  }
-}
-
 .axis {
   path {
     stroke: $white-color;
   }
   text {
     fill: $white-color;
-  }
-  .tick line {
-    stroke: none;
   }
   .tick text {
     fill: $white-color;
