@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import * as d3 from 'd3';
 import { IQLService } from '../iql';
 import { FFTService } from '../fft';
+import * as d3 from 'd3';
 
 @Component({
     selector: 'spectrum',
@@ -13,7 +13,6 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
 
     svg: any;
     connection: any;
-    isFftSetup = false;
 
     constructor(private iql: IQLService, private fft: FFTService) {
     }
@@ -45,9 +44,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
         // console.log(data);
         switch (data.tag) {
             case 'fft':
-                if (this.isFftSetup) {
-                    this.fft.fft_draw(data.fft);
-                } else { console.log('no ready'); }
+                this.fft.fft_draw(data.fft);
                 break;
             case 'maxfft':
                 console.table(data);
@@ -70,7 +67,6 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
 
     render() {
         this.fft.fft_setup();
-        this.isFftSetup = true;
 
         d3.select(window).on('resize', () => {
             d3.select('#spectrum > svg').remove();

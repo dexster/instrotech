@@ -21,6 +21,7 @@ import {ChannelsComponent} from './channels/channels.component';
 import {UnitsComponent} from './units/units.component';
 import { IQLService } from './iql';
 import { FFTService } from './fft';
+import { BandsService } from './bands';
 
 @NgModule({
     declarations: [
@@ -43,7 +44,7 @@ import { FFTService } from './fft';
         MatRadioModule,
         GraphConfigModule
     ],
-    providers: [appRoutingProviders, IQLService, FFTService],
+    providers: [appRoutingProviders, IQLService, FFTService, BandsService],
     bootstrap: [AppComponent]
 })
 export class AppModule {
