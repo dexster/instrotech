@@ -53,7 +53,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
                 // console.table(data);
                 // console.table(data.samples.map((x) => x.mean));
                 const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => Math.max(a, b));
-                console.log(maxmean);
+                // console.log(maxmean);
 
                 let datum;
                 if (maxmean <= this.thresholds.low) {
@@ -80,9 +80,9 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
                         over: maxmean - this.thresholds.high };
                 }
 
-                const datum2 = { channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2 };
+                // const datum2 = { channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2 };
 
-                this.bands.bands_draw([datum, datum2]);
+                this.bands.bands_draw([datum]); // , datum2]);
 
                 // console.log(100 + maxmean);
                 // console.log( data.samples.find((x) => x.mean === maxmean) );

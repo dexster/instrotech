@@ -153,7 +153,7 @@ export class BandsService {
         this.draw_x_axis();
 
         this.z.domain(['low', 'medium', 'high', 'over']);
-        console.log(data);
+        // console.log(data);
 
         const barsdata = this.g.selectAll('.serie')
             .data(this.stack.keys(['low', 'medium', 'high', 'over'])(data));
