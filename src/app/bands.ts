@@ -62,7 +62,10 @@ export class BandsService {
             .attr('text-anchor', 'start')
             .attr('fill', '#fff');
 
-        this.svg
+        const lowline = this.svg
+            .append('g')
+            .attr('id', 'lowline');
+        lowline
             .append('line')
             .attr('id', 'low')
             .attr('x1', 0)
@@ -70,6 +73,10 @@ export class BandsService {
             .attr('y1', this.y(10) + this.margin.top)
             .attr('y2', this.y(10) + this.margin.top)
             .attr('stroke', '#ccc');
+        lowline
+            .append('text')
+            .attr('y', this.y(10) + this.margin.top)
+            .text('10%');
 
         this.svg
             .append('line')
