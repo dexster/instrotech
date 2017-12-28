@@ -39,7 +39,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.iql.query([
             // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
             // 'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'// ,
-            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
+            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 3000 ms',
             // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
         ]);
     }

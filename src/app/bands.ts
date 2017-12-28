@@ -23,12 +23,12 @@ export class BandsService {
     width: any;
     height: any;
     g: any;
-    thresholds: BandsThresholds = {low: 10, medium: 48, high: 64, over: 100};
+    thresholds: BandsThresholds = { low: 10, medium: 48, high: 64, over: 100 };
 
     bands_setup(selector) {
         d3.select(selector + ' > svg').remove();
         this.svg = d3.select(selector).append('svg');
-        this.margin = { top: 20, right: 40, bottom: 30, left: 20 };
+        this.margin = { top: 20, right: 40, bottom: 30, left: 40 };
         // this.width = parseInt(this.svg.style('width'), 10) - this.margin.left - this.margin.right;
         // this.height = parseInt(this.svg.style('height'), 10) - this.margin.top - this.margin.bottom;
         this.width = d3.select(selector).node().getBoundingClientRect().width - this.margin.left - this.margin.right;
@@ -55,103 +55,91 @@ export class BandsService {
 
         this.yAxis = this.svg.append('g').attr('class', 'y axis')
             .attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')')
-            .call(d3.axisLeft(this.y).ticks(10, 's').tickSize(0))
+            .call(d3.axisLeft(this.y).ticks(10, 's').tickSize(0).tickPadding(15))
             .append('text')
             .attr('x', 2)
             .attr('dy', '0.35em')
             .attr('text-anchor', 'start')
             .attr('fill', '#fff');
+
+        this.svg
+            .append('line')
+            .attr('id', 'low')
+            .attr('x1', 0)
+            .attr('x2', this.width)
+            .attr('y1', this.y(10) + this.margin.top)
+            .attr('y2', this.y(10) + this.margin.top)
+            .attr('stroke', '#ccc');
+
+        this.svg
+            .append('line')
+            .attr('id', 'medium')
+            .attr('x1', 0)
+            .attr('x2', this.width)
+            .attr('y1', this.y(48) + this.margin.top)
+            .attr('y2', this.y(48) + this.margin.top)
+            .attr('stroke', '#ccc');
+
+        this.svg
+            .append('line')
+            .attr('id', 'high')
+            .attr('x1', 0)
+            .attr('x2', this.width)
+            .attr('y1', this.y(64) + this.margin.top)
+            .attr('y2', this.y(64) + this.margin.top)
+            .attr('stroke', '#ccc');
     }
 
     draw_x_axis() {
         this.svg.select('g.x').remove();
         this.xAxis = this.svg.append('g').attr('class', 'x axis')
             .attr('transform', 'translate(' + this.margin.left + ',' + (this.height + this.margin.top) + ')')
-            .call(d3.axisBottom(this.x).tickSize(0));
+            .call(d3.axisBottom(this.x).tickSize(0).tickPadding(15));
     }
 
     bands_draw(data) {
         const that = this;
 
         this.x.domain(data.map(function (d) {
-            // return d.unit;
-            // console.log(d);
             return d.channel;
         }));
         this.draw_x_axis();
 
-        // this.z.domain(data.columns.slice(1));
         this.z.domain(['low', 'medium', 'high', 'over']);
-         console.log(data);
-        // console.log(this.stack.keys(data.columns.slice(1))(data));
-        // console.log(this.stack.keys(['low', 'medium', 'high', 'over'])(data));
+        console.log(data);
 
-        // this.selection = 
-        const bars = this.g.selectAll('.serie')
-            // .data(this.stack.keys(data.columns.slice(1))(data))
+        const barsdata = this.g.selectAll('.serie')
             .data(this.stack.keys(['low', 'medium', 'high', 'over'])(data));
 
-        bars.enter()
+        barsdata.enter()
             .append('g')
+            .merge(barsdata)
             .attr('class', 'serie')
             .attr('fill', function (d) {
-                // console.log(d);
                 return that.z(d.key);
             });
 
-        const rects = bars.selectAll('rect')
+        const rectsdata = barsdata.selectAll('rect')
             .data(function (d) {
-                // console.log(d);
                 return d;
-            })
-            .attr('x', (d) => {
-                // return this.x(d.data.unit);
-                return this.x(d.data.channel);
-            })
-            .attr('y', (d) => {
-                // console.log(d.data.unit + ': ' + d[1] + ' -> ' + this.y(d[1]));
-                return this.y(d[1]);
-            })
-            .attr('height', (d) => {
-                // console.log('height: ' + this.y(d[0]) + ' - ' + this.y(d[1]) + ' -> values: ' + d[0] + ' ' + d[1]);
-                const yheight = this.y(d[0]) - this.y(d[1]);
-                if (yheight < 0) { return 0; }
-                return this.y(d[0]) - this.y(d[1]);
-            })
-            .attr('width', this.x.bandwidth());
+            });
 
-        rects
+        rectsdata
             .enter()
             .append('rect')
+            .merge(rectsdata)
+            .transition()
             .attr('x', (d) => {
-                // return this.x(d.data.unit);
                 return this.x(d.data.channel);
             })
             .attr('y', (d) => {
-                // console.log(d.data.unit + ': ' + d[1] + ' -> ' + this.y(d[1]));
                 return this.y(d[1]);
             })
             .attr('height', (d) => {
-                // console.log('height: ' + this.y(d[0]) + ' - ' + this.y(d[1]) + ' -> values: ' + d[0] + ' ' + d[1]);
                 const yheight = this.y(d[0]) - this.y(d[1]);
                 if (yheight < 0) { return 0; }
                 return this.y(d[0]) - this.y(d[1]);
             })
             .attr('width', this.x.bandwidth());
-
-
-        // this.xAxis = this.g.append('g')
-        //     .attr('transform', 'translate(0,' + this.height + ')')
-        //     .attr('class', 'axis')
-        //     .call(d3.axisBottom(this.x));
-
-        // this.yAxis = this.g.append('g')
-        //     .attr('class', 'axis')
-        //     .call(d3.axisLeft(this.y).ticks(10, 's'))
-        //     .append('text')
-        //     .attr('x', 2)
-        //     .attr('dy', '0.35em')
-        //     .attr('text-anchor', 'start')
-        //     .attr('fill', '#fff');
     }
 }
