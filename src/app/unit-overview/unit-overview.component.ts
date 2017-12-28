@@ -2,6 +2,7 @@ import { Component, AfterViewInit, Inject, OnInit, OnDestroy } from '@angular/co
 import { IQLService } from '../iql';
 import { BandsService } from '../bands';
 import * as d3 from 'd3';
+import { BARS_DATA } from '../barsConfig';
 
 @Component({
     selector: 'unit-overview',
@@ -18,7 +19,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     x: any;
     y: any;
 
-    constructor(private iql: IQLService, private bands: BandsService) {
+    constructor(private iql: IQLService, private bands: BandsService, @Inject(BARS_DATA) private thresholds) {
     }
 
     ngOnInit() {
@@ -55,20 +56,31 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
                 console.log(maxmean);
 
                 let datum;
-                if (maxmean <= 10) {
-                    datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
+                if (maxmean <= this.thresholds.low) {
+                    datum = { channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0 };
                 }
-                if (maxmean >= 10 && maxmean < 48) {
-                    datum = {channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0};
+                if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
+                    datum = { channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0 };
                 }
-                if (maxmean >= 48 && maxmean < 64) {
-                    datum = {channel: data.channel.id, low: 0, medium: 48, high: maxmean - 48, over: 0};
+                if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
+                    datum = {
+                        channel: data.channel.id,
+                        low: 0,
+                        medium: this.thresholds.medium,
+                        high: maxmean - this.thresholds.medium,
+                        over: 0
+                    };
                 }
-                if (maxmean >= 64 && maxmean < 100) {
-                    datum = {channel: data.channel.id, low: 0, medium: 48, high: 16, over: maxmean - 64};
+                if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
+                    datum = {
+                        channel: data.channel.id,
+                        low: 0,
+                        medium: this.thresholds.medium,
+                        high: this.thresholds.high - this.thresholds.medium,
+                        over: maxmean - this.thresholds.high };
                 }
 
-                const datum2 = {channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2};
+                const datum2 = { channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2 };
 
                 this.bands.bands_draw([datum, datum2]);
 

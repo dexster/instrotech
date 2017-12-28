@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import * as d3 from 'd3';
+import { BarsConfigModule, BARS_DATA } from './barsConfig';
 
 interface BandsThresholds {
     low: number;
@@ -23,7 +24,10 @@ export class BandsService {
     width: any;
     height: any;
     g: any;
-    thresholds: BandsThresholds = { low: 10, medium: 48, high: 64, over: 100 };
+
+    constructor(@Inject(BARS_DATA) private thresholds) {
+        console.log(thresholds);
+    }
 
     bands_setup(selector) {
         d3.select(selector + ' > svg').remove();
@@ -53,48 +57,84 @@ export class BandsService {
 
         this.stack = d3.stack();
 
-        this.yAxis = this.svg.append('g').attr('class', 'y axis')
+        this.yAxis = this.svg.append('g')
+            .attr('class', 'y axis')
             .attr('transform', 'translate(' + this.margin.left + ',' + (this.margin.top) + ')')
-            .call(d3.axisLeft(this.y).ticks(10, 's').tickSize(0).tickPadding(15))
+            .call(d3.axisLeft(this.y).ticks(0).tickSize(0))
             .append('text')
             .attr('x', 2)
             .attr('dy', '0.35em')
-            .attr('text-anchor', 'start')
-            .attr('fill', '#fff');
+            .attr('text-anchor', 'start');
 
-        const lowline = this.svg
+        this.svg.append('g')
+            .attr('class', 'axis')
+            .attr('transform', 'translate(0,' + this.height + ')')
+            .append('text')
+            .attr('x', this.width / 2)
+            .attr('dy', '5em')
+            .style('text-anchor', 'middle')
+            .text('CHANNEL NUMBER');
+
+        this.svg.append('g')
+            .attr('class', 'axis')
             .append('g')
-            .attr('id', 'lowline');
-        lowline
+            .append('text')
+            .attr('x', -(this.height / 2))
+            .attr('dy', '1em')
+            .style('text-anchor', 'middle')
+            .attr('transform', 'rotate(270,0,0)')
+            .text('ALARM LEVEL (%)');
+
+        this.draw_x_axis();
+
+        const watermarklines = this.svg
+            .append('g')
+            .attr('id', 'watermarklines');
+        watermarklines
             .append('line')
             .attr('id', 'low')
-            .attr('x1', 0)
-            .attr('x2', this.width)
-            .attr('y1', this.y(10) + this.margin.top)
-            .attr('y2', this.y(10) + this.margin.top)
+            .attr('x1', this.margin.left)
+            .attr('x2', this.width + this.margin.right)
+            .attr('y1', this.y(this.thresholds.low) + this.margin.top)
+            .attr('y2', this.y(this.thresholds.low) + this.margin.top)
             .attr('stroke', '#ccc');
-        lowline
+        watermarklines
             .append('text')
-            .attr('y', this.y(10) + this.margin.top)
-            .text('10%');
-
-        this.svg
+            .style('text-anchor', 'start')
+            .attr('x', this.margin.left - 20)
+            .attr('y', this.y(this.thresholds.low) + this.margin.top + 4)
+            .text(this.thresholds.low)
+            .attr('fill', '#fff');
+        watermarklines
             .append('line')
             .attr('id', 'medium')
-            .attr('x1', 0)
-            .attr('x2', this.width)
-            .attr('y1', this.y(48) + this.margin.top)
-            .attr('y2', this.y(48) + this.margin.top)
+            .attr('x1', this.margin.left)
+            .attr('x2', this.width + this.margin.right)
+            .attr('y1', this.y(this.thresholds.medium) + this.margin.top)
+            .attr('y2', this.y(this.thresholds.medium) + this.margin.top)
             .attr('stroke', '#ccc');
-
-        this.svg
+        watermarklines
+            .append('text')
+            .style('text-anchor', 'start')
+            .attr('x', this.margin.left - 20)
+            .attr('y', this.y(this.thresholds.medium) + this.margin.top + 4)
+            .text(this.thresholds.medium)
+            .attr('fill', '#fff');
+        watermarklines
             .append('line')
             .attr('id', 'high')
-            .attr('x1', 0)
-            .attr('x2', this.width)
-            .attr('y1', this.y(64) + this.margin.top)
-            .attr('y2', this.y(64) + this.margin.top)
+            .attr('x1', this.margin.left)
+            .attr('x2', this.width + this.margin.right)
+            .attr('y1', this.y(this.thresholds.high) + this.margin.top)
+            .attr('y2', this.y(this.thresholds.high) + this.margin.top)
             .attr('stroke', '#ccc');
+        watermarklines
+            .append('text')
+            .style('text-anchor', 'start')
+            .attr('x', this.margin.left - 20)
+            .attr('y', this.y(this.thresholds.high) + this.margin.top + 4)
+            .text(this.thresholds.high)
+            .attr('fill', '#fff');
     }
 
     draw_x_axis() {
