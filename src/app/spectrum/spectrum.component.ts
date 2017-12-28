@@ -46,9 +46,6 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
             case 'fft':
                 this.fft.fft_draw(data.fft);
                 break;
-            case 'maxfft':
-                console.table(data);
-                break;
             /*
                         case 'metrics':
                             SpectrumComponent.fft.metrics_draw(data.samples);

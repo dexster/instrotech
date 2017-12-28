@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import * as d3 from 'd3';
 
+interface BandsThresholds {
+    low: number;
+    medium: number;
+    high: number;
+    over: number;
+}
+
 @Injectable()
 export class BandsService {
 
@@ -16,6 +23,7 @@ export class BandsService {
     width: any;
     height: any;
     g: any;
+    thresholds: BandsThresholds = {low: 10, medium: 48, high: 64, over: 100};
 
     bands_setup(selector) {
         d3.select(selector + ' > svg').remove();
@@ -56,6 +64,7 @@ export class BandsService {
     }
 
     draw_x_axis() {
+        this.svg.select('g.x').remove();
         this.xAxis = this.svg.append('g').attr('class', 'x axis')
             .attr('transform', 'translate(' + this.margin.left + ',' + (this.height + this.margin.top) + ')')
             .call(d3.axisBottom(this.x).tickSize(0));
@@ -65,34 +74,71 @@ export class BandsService {
         const that = this;
 
         this.x.domain(data.map(function (d) {
-            return d.unit;
+            // return d.unit;
+            // console.log(d);
+            return d.channel;
         }));
         this.draw_x_axis();
 
-        this.z.domain(data.columns.slice(1));
+        // this.z.domain(data.columns.slice(1));
+        this.z.domain(['low', 'medium', 'high', 'over']);
+         console.log(data);
+        // console.log(this.stack.keys(data.columns.slice(1))(data));
+        // console.log(this.stack.keys(['low', 'medium', 'high', 'over'])(data));
 
-        this.selection = this.g.selectAll('.serie')
-            .data(this.stack.keys(data.columns.slice(1))(data))
-            .enter().append('g')
+        // this.selection = 
+        const bars = this.g.selectAll('.serie')
+            // .data(this.stack.keys(data.columns.slice(1))(data))
+            .data(this.stack.keys(['low', 'medium', 'high', 'over'])(data));
+
+        bars.enter()
+            .append('g')
             .attr('class', 'serie')
             .attr('fill', function (d) {
+                // console.log(d);
                 return that.z(d.key);
-            })
-            .selectAll('rect')
+            });
+
+        const rects = bars.selectAll('rect')
             .data(function (d) {
+                // console.log(d);
                 return d;
             })
-            .enter().append('rect')
             .attr('x', (d) => {
-                return this.x(d.data.unit);
+                // return this.x(d.data.unit);
+                return this.x(d.data.channel);
             })
             .attr('y', (d) => {
+                // console.log(d.data.unit + ': ' + d[1] + ' -> ' + this.y(d[1]));
                 return this.y(d[1]);
             })
             .attr('height', (d) => {
+                // console.log('height: ' + this.y(d[0]) + ' - ' + this.y(d[1]) + ' -> values: ' + d[0] + ' ' + d[1]);
+                const yheight = this.y(d[0]) - this.y(d[1]);
+                if (yheight < 0) { return 0; }
                 return this.y(d[0]) - this.y(d[1]);
             })
             .attr('width', this.x.bandwidth());
+
+        rects
+            .enter()
+            .append('rect')
+            .attr('x', (d) => {
+                // return this.x(d.data.unit);
+                return this.x(d.data.channel);
+            })
+            .attr('y', (d) => {
+                // console.log(d.data.unit + ': ' + d[1] + ' -> ' + this.y(d[1]));
+                return this.y(d[1]);
+            })
+            .attr('height', (d) => {
+                // console.log('height: ' + this.y(d[0]) + ' - ' + this.y(d[1]) + ' -> values: ' + d[0] + ' ' + d[1]);
+                const yheight = this.y(d[0]) - this.y(d[1]);
+                if (yheight < 0) { return 0; }
+                return this.y(d[0]) - this.y(d[1]);
+            })
+            .attr('width', this.x.bandwidth());
+
 
         // this.xAxis = this.g.append('g')
         //     .attr('transform', 'translate(0,' + this.height + ')')
