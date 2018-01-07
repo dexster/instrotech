@@ -21,7 +21,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     x: any;
     y: any;
     subscription: Subscription;
-    unit: number = 1;
+    unit: number;
     channel: number;
 
     constructor(private iql: IQLService,

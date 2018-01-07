@@ -17,6 +17,7 @@ export class UnitsComponent implements AfterViewInit {
     ngAfterViewInit() {
         setTimeout(() => {
             this.selectedUnit = 1;
+            this.unitChanged();
         });
     }
 
