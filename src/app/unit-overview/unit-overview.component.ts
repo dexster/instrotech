@@ -1,8 +1,10 @@
-import { Component, AfterViewInit, Inject, OnInit, OnDestroy } from '@angular/core';
-import { IQLService } from '../iql';
-import { BandsService } from '../bands';
+import {Component, AfterViewInit, Inject, OnInit, OnDestroy} from '@angular/core';
+import {Subscription} from 'rxjs/Subscription';
+import {IQLService} from '../iql';
+import {UnitSelectService} from '../services/unit-select/unit-select.service';
+import {BandsService} from '../bands';
 import * as d3 from 'd3';
-import { BARS_DATA } from '../barsConfig';
+import {BARS_DATA} from '../barsConfig';
 
 @Component({
     selector: 'unit-overview',
@@ -18,8 +20,17 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     selection: any;
     x: any;
     y: any;
+    subscription: Subscription;
+    unit: number = 1;
+    channel: number;
 
-    constructor(private iql: IQLService, private bands: BandsService, @Inject(BARS_DATA) private thresholds) {
+    constructor(private iql: IQLService,
+                private bands: BandsService,
+                @Inject(BARS_DATA) private thresholds,
+                private unitSelectService: UnitSelectService) {
+        this.subscription = unitSelectService.unitUpdated$.subscribe((selectedUnit) => {
+            this.unit = selectedUnit;
+        });
     }
 
     ngOnInit() {
@@ -32,6 +43,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.connection.close();
+        this.subscription.unsubscribe();
     }
 
     connected() {
@@ -40,7 +52,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.iql.query([
             // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
             // 'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'// ,
-            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 3000 ms',
+            `SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=1 EVERY 3000 ms`,
             // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
         ]);
     }
@@ -57,10 +69,10 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 let datum;
                 if (maxmean <= this.thresholds.low) {
-                    datum = { channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0 };
+                    datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
                 }
                 if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
-                    datum = { channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0 };
+                    datum = {channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0};
                 }
                 if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
                     datum = {
@@ -77,7 +89,8 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
                         low: 0,
                         medium: this.thresholds.medium,
                         high: this.thresholds.high - this.thresholds.medium,
-                        over: maxmean - this.thresholds.high };
+                        over: maxmean - this.thresholds.high
+                    };
                 }
 
                 // const datum2 = { channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2 };
@@ -109,7 +122,9 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
         d3.csv('assets/data.csv', this.type, (error, data) => {
-            if (error) { throw error; }
+            if (error) {
+                throw error;
+            }
 
             // data.sort(function(a, b) { return b.total - a.total; });
             // this.bands.bands_draw(data);

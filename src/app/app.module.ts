@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
 
 import { routing, appRoutingProviders } from './app.routing';
 
@@ -23,6 +25,7 @@ import { UnitsComponent } from './units/units.component';
 import { IQLService } from './iql';
 import { FFTService } from './fft';
 import { BandsService } from './bands';
+import { UnitSelectService } from './services/unit-select/unit-select.service';
 
 @NgModule({
     declarations: [
@@ -40,13 +43,14 @@ import { BandsService } from './bands';
         routing,
         BrowserModule,
         BrowserAnimationsModule,
+        FormsModule,
         MatTabsModule,
         MatIconModule,
         MatRadioModule,
         GraphConfigModule,
         BarsConfigModule
     ],
-    providers: [appRoutingProviders, IQLService, FFTService, BandsService],
+    providers: [appRoutingProviders, IQLService, FFTService, BandsService, UnitSelectService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

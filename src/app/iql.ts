@@ -26,6 +26,7 @@ export class IQLService {
 
     public connect(connectedCallback: any = null, disconnectedCallback: any = null, dispatchCallback: any = null) {
         const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
+        // const host = 'netdevci.ddns.net:8080';
         const wsurl = 'ws://' + host + '/websockets/iql.js';
         const that = this;
 
