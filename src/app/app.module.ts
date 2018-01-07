@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 import { routing, appRoutingProviders } from './app.routing';
 
-import { MatTabsModule, MatIconModule, MatRadioModule } from '@angular/material';
+import { MatTabsModule, MatIconModule, MatRadioModule, MatCheckboxModule } from '@angular/material';
 import { TimesPipe } from './services/times.pipe/times.pipe';
 
 import { GraphConfigModule } from './chartConfig';
@@ -26,6 +26,7 @@ import { IQLService } from './iql';
 import { FFTService } from './fft';
 import { BandsService } from './bands';
 import { UnitSelectService } from './services/unit-select/unit-select.service';
+import { ChannelSelectService } from './services/channel-select/channel-select.service';
 
 @NgModule({
     declarations: [
@@ -47,10 +48,11 @@ import { UnitSelectService } from './services/unit-select/unit-select.service';
         MatTabsModule,
         MatIconModule,
         MatRadioModule,
+        MatCheckboxModule,
         GraphConfigModule,
         BarsConfigModule
     ],
-    providers: [appRoutingProviders, IQLService, FFTService, BandsService, UnitSelectService],
+    providers: [appRoutingProviders, IQLService, FFTService, BandsService, UnitSelectService, ChannelSelectService],
     bootstrap: [AppComponent]
 })
 export class AppModule {
