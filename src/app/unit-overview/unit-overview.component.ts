@@ -1,22 +1,136 @@
-import {Component, AfterViewInit, Inject} from '@angular/core';
-import {GRAPH_DATA} from '../chartConfig';
+import {Component, AfterViewInit, Inject, OnInit, OnDestroy} from '@angular/core';
+import {Subscription} from 'rxjs/Subscription';
+import {IQLService} from '../iql';
+import {UnitSelectService} from '../services/unit-select/unit-select.service';
+import {BandsService} from '../bands';
 import * as d3 from 'd3';
+import * as _ from "lodash";
+import {BARS_DATA} from '../barsConfig';
 
 @Component({
     selector: 'unit-overview',
     templateUrl: './unit-overview.component.html',
     styleUrls: ['./unit-overview.component.scss']
 })
-export class UnitOverviewComponent implements AfterViewInit {
+export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
+    connection: any;
     svg: any;
     xAxis: any;
     yAxis: any;
     selection: any;
     x: any;
     y: any;
+    subscription: Subscription;
+    unit: number;
+    channelCount: number = 1;
+    metrics: Array<any> = [];
+    callBandDraw
+    datums;
 
-    constructor(@Inject(GRAPH_DATA) private graphConfig) {
+    constructor(private iql: IQLService,
+                private bands: BandsService,
+                @Inject(BARS_DATA) private thresholds,
+                private unitSelectService: UnitSelectService) {
+        this.subscription = unitSelectService.unitUpdated$.subscribe((selectedUnit) => {
+            this.unit = selectedUnit;
+        });
+    }
+
+    ngOnInit() {
+        this.createConnection(this.channelCount);
+        this.callBandDraw = _.throttle(() => this.bands.bands_draw(this.datums), 3000);
+    }
+
+    createConnection(channel: number) {
+        const boundConnected = this.connected.bind(this);
+        const boundDisconnected = this.disconnected.bind(this);
+        const boundDispatch = this.dispatch.bind(this);
+
+        this.connection = this.iql.connect(boundConnected, boundDisconnected, boundDispatch);
+    }
+
+    ngOnDestroy() {
+        this.connection.close();
+        this.subscription.unsubscribe();
+    }
+
+    connected() {
+        console.log('connected!');
+
+        this.iql.query([
+            // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
+            // 'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'// ,
+            `SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=1 EVERY 3000 ms`,
+            // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
+        ]);
+    }
+
+    dispatch(data) {
+        // console.log(data);
+        switch (data.tag) {
+            case 'metrics':
+                if (this.channelCount < 33) {
+                    this.metrics.push(data);
+                    this.createConnection(this.channelCount++);
+                } else {
+                    this.metrics[data.channel.id] = data;
+                    this.datums = this.metrics.map((data, index) => {
+                        // this.fft.fft_draw(data.fft);
+                        // console.table(data);
+                        // console.table(data.samples.map((x) => x.mean));
+                        const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => Math.max(a, b));
+                        // console.log(maxmean);
+
+                        let datum;
+                        if (maxmean <= this.thresholds.low) {
+                            // datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
+                            datum = {channel: index + 1, low: maxmean, medium: 0, high: 0, over: 0};
+                        }
+                        if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
+                            datum = {channel: index + 1, low: 0, medium: maxmean, high: 0, over: 0};
+                        }
+                        if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
+                            datum = {
+                                channel: index + 1,
+                                low: 0,
+                                medium: this.thresholds.medium,
+                                high: maxmean - this.thresholds.medium,
+                                over: 0
+                            };
+                        }
+                        if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
+                            datum = {
+                                channel: index + 1,
+                                low: 0,
+                                medium: this.thresholds.medium,
+                                high: this.thresholds.high - this.thresholds.medium,
+                                over: maxmean - this.thresholds.high
+                            };
+                        }
+
+                        return datum;
+
+                        // const datum2 = {channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2};
+
+                    });
+                    this.callBandDraw();
+                }
+
+                // console.log(100 + maxmean);
+                // console.log( data.samples.find((x) => x.mean === maxmean) );
+                // this.bands.bands_draw(data);
+                break;
+            /*
+                        case 'metrics':
+                            SpectrumComponent.fft.metrics_draw(data.samples);
+                            break;
+            */
+        }
+    }
+
+    disconnected() {
+        console.log('disconnected!');
     }
 
     ngAfterViewInit() {
@@ -24,143 +138,46 @@ export class UnitOverviewComponent implements AfterViewInit {
     }
 
     render() {
-        d3.select("#unit-overview > svg").remove();
-        this.svg = d3.select("#unit-overview").append('svg');
-        let margin = {top: 20, right: 40, bottom: 30, left: 40},
-            width = parseInt(this.svg.style("width")) - margin.left - margin.right,
-            height = parseInt(this.svg.style("height")) - margin.top - margin.bottom,
-            g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        this.bands.bands_setup('#unit-overview');
 
-        // var margin = {top: 20, right: 150, bottom: 50, left: 40},
-        //     width = 600 - margin.left - marginStacked.right,
-        //     height = 500 - margin.top - marginStacked.bottom;
+
+        // d3.csv('assets/data.csv', this.type, (error, data) => {
+        //     if (error) {
+        //         throw error;
+        //     }
         //
+        //     // data.sort(function(a, b) { return b.total - a.total; });
+        //     // this.bands.bands_draw(data);
+        //     // console.log(data);
+        // });
         //
-        // var svg = d3.select("#stacked").append("svg")
-        //     .attr("width", widthStacked + marginStacked.left + marginStacked.right)
-        //     .attr("height", heightStacked + marginStacked.top + marginStacked.bottom)
-        //   .append("g")
-        //     .attr("transform", "translate(" + marginStacked.left + "," + marginStacked.top + ")");
-
-        this.x = d3.scaleBand()
-            .rangeRound([0, width])
-            .padding(0.3)
-            .align(0.3);
-
-        this.y = d3.scaleLinear()
-            .rangeRound([height, 0]);
-
-        var z = d3.scaleOrdinal()
-            .range(["#14B5EB", "#20C45C", "#FAC750", "#DC2846"]);
-
-        var stack = d3.stack();
-
-        d3.csv("assets/data.csv", this.type, (error, data) => {
-            if (error) throw error;
-
-            // data.sort(function(a, b) { return b.total - a.total; });
-
-            this.x.domain(data.map(function (d) {
-                return d.unit;
-            }));
-            this.y.domain([0, d3.max(data, function (d) {
-                return d.total;
-            })]).nice();
-            z.domain(data.columns.slice(1));
-
-            this.selection = g.selectAll(".serie")
-                .data(stack.keys(data.columns.slice(1))(data))
-                .enter().append("g")
-                .attr("class", "serie")
-                .attr("fill", function (d) {
-                    return z(d.key);
-                })
-                .selectAll("rect")
-                .data(function (d) {
-                    return d;
-                })
-                .enter().append("rect")
-                .attr("x",  (d) => {
-                    return this.x(d.data.unit);
-                })
-                .attr("y",  (d) => {
-                    return this.y(d[1]);
-                })
-                .attr("height",  (d) => {
-                    return this.y(d[0]) - this.y(d[1]);
-                })
-                .attr("width", this.x.bandwidth());
-
-            this.xAxis = g.append("g")
-                .attr("transform", "translate(0," + height + ")")
-                .attr("class", this.graphConfig.xAxisName)
-                .style("stroke", this.graphConfig.stroke)
-                .style("border", this.graphConfig.borderWidth)
-                .style("border-style", this.graphConfig.borderStyle)
-                .style("border-color", this.graphConfig.borderColor).call(d3.axisBottom(this.x));
-
-            this.yAxis = g.append("g")
-                .attr("class", this.graphConfig.yAxisName)
-                .style("stroke", this.graphConfig.stroke)
-                .style("border", this.graphConfig.borderWidth)
-                .style("border-style", this.graphConfig.borderStyle)
-                .style("border-color", this.graphConfig.borderColor)
-                .call(d3.axisLeft(this.y).ticks(10, "s"))
-                .append("text")
-                .attr("x", 2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", "start")
-                .attr("fill", "#fff");
-
-            // var legend = g.selectAll(".legend")
-            //     .data(data.columns.slice(1).reverse())
-            //     .enter().append("g")
-            //     .attr("class", "legend")
-            //     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
-            //     .style("font", "10px sans-serif");
-            //
-            // legend.append("rect")
-            //     .attr("x", width + 18)
-            //     .attr("width", 18)
-            //     .attr("height", 18)
-            //     .attr("fill", z);
-            //
-            // legend.append("text")
-            //     .attr("x", width + 44)
-            //     .attr("y", 9)
-            //     .attr("dy", ".35em")
-            //     .attr("text-anchor", "start")
-            //     .text(function(d) { return d; });
-        });
-
-        d3.select(window).on('resize', () => {
-            this.render();
-        });
+        // d3.select(window).on('resize', () => {
+        //     this.render();
+        // });
     }
 
-    resize() {
-        if (this.selection) {
-            const detectedHeight = window.innerHeight
-                || document.documentElement.clientHeight
-                || document.body.clientHeight;
+    // resize() {
+    //     if (this.selection) {
+    //         const detectedHeight = window.innerHeight
+    //             || document.documentElement.clientHeight
+    //             || document.body.clientHeight;
 
-            let aspect = parseInt(this.svg.style("width")) / parseInt(this.svg.style("height"));
-            // let width = parseInt(d3.select("#stackedbars").style("width")),
-            //     height = parseInt(d3.select("#stackedbars").style("height"));
-            let targetWidth = this.svg.node().getBoundingClientRect().width;
-            let targetHeight = this.svg.node().getBoundingClientRect().height;
-            this.svg.attr("width", targetWidth);
-            this.svg.attr("height", detectedHeight);
-            this.selection.attr("width", this.x.bandwidth());
-            this.xAxis.attr("transform", "translate(0," + detectedHeight + ")")
+    //         const aspect = parseInt(this.svg.style('width'), 10) / parseInt(this.svg.style('height'), 10);
+    //         const targetWidth = this.svg.node().getBoundingClientRect().width;
+    //         const targetHeight = this.svg.node().getBoundingClientRect().height;
+    //         this.svg.attr('width', targetWidth);
+    //         this.svg.attr('height', detectedHeight);
+    //         this.selection.attr('width', this.x.bandwidth());
+    //         this.xAxis.attr('transform', 'translate(0,' + detectedHeight + ')')
 
-        }
-    }
-
+    //     }
+    // }
 
     type(d, i, columns) {
-        var t: any = 0;
-        for (var i: any = 1; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
+        let t: any = 0;
+        for (let j: any = 1; j < columns.length; ++j) {
+            t += d[columns[j]] = +d[columns[j]];
+        }
         d.total = t;
         return d;
     }

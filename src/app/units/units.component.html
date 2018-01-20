@@ -1,5 +1,5 @@
 <div class="unit-type-container">
-    <mat-radio-group class="example-radio-group">
+    <mat-radio-group #unitRadioGroup [(ngModel)]="selectedUnit" (change)="unitChanged()">
         <mat-radio-button *ngFor="let unit of 6|times" [value]="unit" class="unit-type">
             <div>
                 UNIT {{ unit }}

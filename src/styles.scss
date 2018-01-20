@@ -53,21 +53,12 @@ body {
   height: 100%;
 }
 
-.grid {
-  .tick line {
-    fill: none;
-  }
-}
-
 .axis {
   path {
     stroke: $white-color;
   }
   text {
     fill: $white-color;
-  }
-  .tick line {
-    stroke: none;
   }
   .tick text {
     fill: $white-color;

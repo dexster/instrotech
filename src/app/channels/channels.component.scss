@@ -19,12 +19,7 @@
   flex: 1;
   max-width: 1280px;
 
-  mat-radio-group {
-    display: flex;
-    flex:1;
-  }
-
-  mat-radio-button {
+  mat-checkbox {
     @include t4;
     display: flex;
     flex: 1;
@@ -32,7 +27,7 @@
     max-width: 1280px;
     background-color: $tertiary-color;
     cursor: pointer;
-    &.mat-radio-checked {
+    &.mat-checkbox-checked {
       background-color: $primary-color;
     }
 
@@ -41,38 +36,18 @@
     }
 
     /deep/ {
-      .mat-radio-container {
-        width: 0;
-      }
-
-      .mat-radio-label {
+      label {
         display: flex;
         justify-content: center;
         flex: 1;
         padding-left: 0;
-        &-content {
-          padding: 0;
-        }
       }
 
-      .mat-radio {
-        &-outer-circle,
-        &-inner-circle,
-        &-ripple {
+      .mat-checkbox {
+        &-inner-container {
           display: none;
         }
       }
     }
-  }
-}
-
-.channel-number-contdainer {
-  display: flex;
-  flex: 1;
-  max-width: 1280px;
-  align-items: center;
-  div {
-    flex: 1;
-    @include t4-weight-bold;
   }
 }

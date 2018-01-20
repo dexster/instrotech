@@ -1,14 +1,27 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ViewChild, AfterViewInit} from '@angular/core';
+import {MatRadioGroup} from '@angular/material';
+import {UnitSelectService} from '../services/unit-select/unit-select.service';
 
 @Component({
     selector: 'units',
     templateUrl: './units.component.html',
     styleUrls: ['./units.component.scss']
 })
-export class UnitsComponent implements OnInit {
+export class UnitsComponent implements AfterViewInit {
+    @ViewChild('unitRadioGroup') unitRadioGroup: MatRadioGroup;
+    selectedUnit: number;
 
-    constructor () { }
+    constructor(private unitSelectService: UnitSelectService) {
+    }
 
-    ngOnInit() {
+    ngAfterViewInit() {
+        setTimeout(() => {
+            this.selectedUnit = 1;
+            this.unitChanged();
+        });
+    }
+
+    unitChanged() {
+        this.unitSelectService.updateUnit(this.selectedUnit);
     }
 }

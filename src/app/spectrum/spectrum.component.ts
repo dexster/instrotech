@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { GRAPH_DATA } from '../chartConfig';
+import {Subscription} from 'rxjs/Subscription';
+import {UnitSelectService} from '../services/unit-select/unit-select.service';
+import {ChannelSelectService} from '../services/channel-select/channel-select.service';
+import { IQLService } from '../iql';
+import { FFTService } from '../fft';
 import * as d3 from 'd3';
-import { IQL_MODULE, IQL } from '../iql';
-import { FFT_MODULE, FFT } from '../fft';
 
 @Component({
     selector: 'spectrum',
@@ -10,46 +12,64 @@ import { FFT_MODULE, FFT } from '../fft';
     styleUrls: ['./spectrum.component.scss']
 })
 
-export class SpectrumComponent implements AfterViewInit, OnDestroy {
+export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    static iql: IQL;
-    static fft: FFT;
     svg: any;
     connection: any;
+    unit: number;
+    channels: Array<any>;
+    unitSubscription: Subscription;
+    channelSubscription: Subscription;
 
-    constructor( @Inject(GRAPH_DATA) private graphConfig, @Inject(IQL_MODULE) private iql, @Inject(FFT_MODULE) private fft) {
-        SpectrumComponent.iql = iql;
-        SpectrumComponent.fft = fft;
-        this.connection = SpectrumComponent.iql.connect(this.connected, this.disconnected, this.dispatch);
+    constructor(private iql: IQLService,
+                private fft: FFTService,
+                private unitSelectService: UnitSelectService,
+                private channelSelectService: ChannelSelectService) {
+        this.unitSubscription = unitSelectService.unitUpdated$.subscribe((selectedUnit) => {
+            this.unit = selectedUnit;
+        });
+        this.channelSubscription = channelSelectService.channelsUpdated$.subscribe((selectedChannels) => {
+            this.channels = selectedChannels;
+        });
+    }
+
+    ngOnInit() {
+        const boundConnected = this.connected.bind(this);
+        const boundDisconnected = this.disconnected.bind(this);
+        const boundDispatch = this.dispatch.bind(this);
+
+        this.connection = this.iql.connect(boundConnected, boundDisconnected, boundDispatch);
     }
 
     ngOnDestroy() {
         this.connection.close();
+        this.unitSubscription.unsubscribe();
+        this.channelSubscription.unsubscribe();
     }
 
     connected() {
         console.log('connected!');
 
-        SpectrumComponent.iql.query([
-            'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
-            'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
-            'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
-            'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
+        this.iql.query([
+            // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
+            //`SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL IN ${this.channels} EVERY 1000 ms`// ,
+            `SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=1 EVERY 1000 ms`// ,
+            // 'SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms',
+            // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
         ]);
-
     }
 
     dispatch(data) {
         // console.log(data);
         switch (data.tag) {
             case 'fft':
-                SpectrumComponent.fft.fft_draw(data.fft);
+                this.fft.fft_draw(data.fft);
                 break;
-/*
-            case 'metrics':
-                SpectrumComponent.fft.metrics_draw(data.samples);
-                break;
-*/
+            /*
+                        case 'metrics':
+                            SpectrumComponent.fft.metrics_draw(data.samples);
+                            break;
+            */
         }
     }
 
