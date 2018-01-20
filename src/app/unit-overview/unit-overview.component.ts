@@ -4,6 +4,7 @@ import {IQLService} from '../iql';
 import {UnitSelectService} from '../services/unit-select/unit-select.service';
 import {BandsService} from '../bands';
 import * as d3 from 'd3';
+import * as _ from "lodash";
 import {BARS_DATA} from '../barsConfig';
 
 @Component({
@@ -22,7 +23,10 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     y: any;
     subscription: Subscription;
     unit: number;
-    channel: number;
+    channelCount: number = 1;
+    metrics: Array<any> = [];
+    callBandDraw
+    datums;
 
     constructor(private iql: IQLService,
                 private bands: BandsService,
@@ -34,6 +38,11 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.createConnection(this.channelCount);
+        this.callBandDraw = _.throttle(() => this.bands.bands_draw(this.datums), 3000);
+    }
+
+    createConnection(channel: number) {
         const boundConnected = this.connected.bind(this);
         const boundDisconnected = this.disconnected.bind(this);
         const boundDispatch = this.dispatch.bind(this);
@@ -61,41 +70,52 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
         // console.log(data);
         switch (data.tag) {
             case 'metrics':
-                // this.fft.fft_draw(data.fft);
-                // console.table(data);
-                // console.table(data.samples.map((x) => x.mean));
-                const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => Math.max(a, b));
-                // console.log(maxmean);
+                if (this.channelCount < 33) {
+                    this.metrics.push(data);
+                    this.createConnection(this.channelCount++);
+                } else {
+                    this.metrics[data.channel.id] = data;
+                    this.datums = this.metrics.map((data, index) => {
+                        // this.fft.fft_draw(data.fft);
+                        // console.table(data);
+                        // console.table(data.samples.map((x) => x.mean));
+                        const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => Math.max(a, b));
+                        // console.log(maxmean);
 
-                let datum;
-                if (maxmean <= this.thresholds.low) {
-                    datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
-                }
-                if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
-                    datum = {channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0};
-                }
-                if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
-                    datum = {
-                        channel: data.channel.id,
-                        low: 0,
-                        medium: this.thresholds.medium,
-                        high: maxmean - this.thresholds.medium,
-                        over: 0
-                    };
-                }
-                if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
-                    datum = {
-                        channel: data.channel.id,
-                        low: 0,
-                        medium: this.thresholds.medium,
-                        high: this.thresholds.high - this.thresholds.medium,
-                        over: maxmean - this.thresholds.high
-                    };
-                }
+                        let datum;
+                        if (maxmean <= this.thresholds.low) {
+                            // datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
+                            datum = {channel: index + 1, low: maxmean, medium: 0, high: 0, over: 0};
+                        }
+                        if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
+                            datum = {channel: index + 1, low: 0, medium: maxmean, high: 0, over: 0};
+                        }
+                        if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
+                            datum = {
+                                channel: index + 1,
+                                low: 0,
+                                medium: this.thresholds.medium,
+                                high: maxmean - this.thresholds.medium,
+                                over: 0
+                            };
+                        }
+                        if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
+                            datum = {
+                                channel: index + 1,
+                                low: 0,
+                                medium: this.thresholds.medium,
+                                high: this.thresholds.high - this.thresholds.medium,
+                                over: maxmean - this.thresholds.high
+                            };
+                        }
 
-                // const datum2 = { channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2 };
+                        return datum;
 
-                this.bands.bands_draw([datum]); // , datum2]);
+                        // const datum2 = {channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2};
+
+                    });
+                    this.callBandDraw();
+                }
 
                 // console.log(100 + maxmean);
                 // console.log( data.samples.find((x) => x.mean === maxmean) );
@@ -121,19 +141,19 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.bands.bands_setup('#unit-overview');
 
 
-        d3.csv('assets/data.csv', this.type, (error, data) => {
-            if (error) {
-                throw error;
-            }
-
-            // data.sort(function(a, b) { return b.total - a.total; });
-            // this.bands.bands_draw(data);
-            // console.log(data);
-        });
-
-        d3.select(window).on('resize', () => {
-            this.render();
-        });
+        // d3.csv('assets/data.csv', this.type, (error, data) => {
+        //     if (error) {
+        //         throw error;
+        //     }
+        //
+        //     // data.sort(function(a, b) { return b.total - a.total; });
+        //     // this.bands.bands_draw(data);
+        //     // console.log(data);
+        // });
+        //
+        // d3.select(window).on('resize', () => {
+        //     this.render();
+        // });
     }
 
     // resize() {
