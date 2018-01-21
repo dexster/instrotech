@@ -28,6 +28,7 @@
     "core-js": "^2.4.1",
     "d3": "^4.12.0",
     "lodash": "^4.17.4",
+    "ngx-logger": "^1.1.2",
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.5.2",
     "zone.js": "^0.8.18"

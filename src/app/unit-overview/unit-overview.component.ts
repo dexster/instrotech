@@ -1,8 +1,8 @@
 import {Component, AfterViewInit, Inject, OnInit, OnDestroy} from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
-import {IQLService} from '../iql';
+import {IQLService} from '../services/iql';
 import {UnitSelectService} from '../services/unit-select/unit-select.service';
-import {BandsService} from '../bands';
+import {BandsService} from '../services/bands';
 import * as d3 from 'd3';
 import * as _ from "lodash";
 import {BARS_DATA} from '../barsConfig';

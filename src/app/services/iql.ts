@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {LoggerService} from '../services/logger/logger.service';
 
 @Injectable()
 export class IQLService {
@@ -9,56 +10,63 @@ export class IQLService {
     private isConnecting = false;
     public watchdogTimer = null;
     private isListening = false;
+    private logger: any;
 
-
-    /*
-     * WATCHDOG
-     */
+    constructor(private loggerService: LoggerService) {
+        this.logger = {
+            debug: (message) => {
+                this.loggerService.debug(`${this.constructor.name} - ${message}`);
+            },
+            error: (message) => {
+                this.loggerService.error(`${this.constructor.name} - ${message}`);
+            }
+        }
+    }
 
     watchdog(connectedCallback) {
-        // console.log("WATCHDOG <" + isConnected + "><" + isConnecting + ">  " + new Date());
+        // this.logger.debug("WATCHDOG <" + this.isConnected + "><" + this.isConnecting + ">  " + new Date());
 
         if (!this.isConnected && !this.isConnecting) {
-            console.log('WATCHDOG <RECONNECT>  ' + new Date());
+            this.logger.debug('WATCHDOG <RECONNECT>  ' + new Date());
             this.connect(connectedCallback);
         }
     }
 
     public connect(connectedCallback: any = null, disconnectedCallback: any = null, dispatchCallback: any = null) {
+        this.logger.debug('connect');
         const host = window.location.host.substring(0, window.location.host.indexOf(':')) + ':8080';
         // const host = 'netdevci.ddns.net:8080';
         const wsurl = 'ws://' + host + '/websockets/iql.js';
-        const that = this;
 
         this.connection = new WebSocket(wsurl);
 
-        this.connection.onopen = function (event) {
-            console.log(' -- CONNECTED');
-            that.isConnected = true;
-            that.isConnecting = false;
+        this.connection.onopen = (event) => {
+            this.logger.debug(' -- CONNECTED');
+            this.isConnected = true;
+            this.isConnecting = false;
             if (typeof connectedCallback === 'function') {
                 connectedCallback();
             }
         };
 
-        this.connection.onclose = function (event) {
-            console.log(' -- DISCONNECTED');
-            that.isConnected = false;
-            that.isConnecting = false;
+        this.connection.onclose = (event) => {
+            this.logger.debug(' -- DISCONNECTED');
+            this.isConnected = false;
+            this.isConnecting = false;
             if (typeof disconnectedCallback === 'function') {
                 disconnectedCallback();
             }
         };
 
-        this.connection.onmessage = function (event) {
+        this.connection.onmessage = (event) => {
             if (typeof dispatchCallback === 'function') {
                 // dispatch(JSON.parse(event.data));
                 dispatchCallback(JSON.parse(event.data));
             }
         };
 
-        this.connection.onerror = function (err) {
-            console.log('ERROR: ' + err);
+        this.connection.onerror =  (err) => {
+            this.logger.error('ERROR: ' + err);
         };
 
         window.clearInterval(this.watchdogTimer);
@@ -83,18 +91,22 @@ export class IQLService {
         const wsurl = 'ws://' + host + '/websockets/iql.js';
         const socket = new WebSocket(wsurl);
 
-        socket.onopen = function (event) {
+        socket.onopen = (event) => {
+            this.logger.debug('socket onopen');
             socket.send(iql);
             socket.close();
         };
 
-        socket.onclose = function (event) {
+        socket.onclose = (event) => {
+            this.logger.debug('socket onclose');
         };
 
-        socket.onerror = function (event) {
+        socket.onerror = (event) => {
+            this.logger.debug('socket onerror');
         };
 
-        socket.onmessage = function (event) {
+        socket.onmessage = (event) => {
+            this.logger.debug('socket onmessage');
         };
     }
 

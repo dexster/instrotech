@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import * as d3 from 'd3';
-import { BarsConfigModule, BARS_DATA } from './barsConfig';
+import { BarsConfigModule, BARS_DATA } from '../barsConfig';
 
 interface BandsThresholds {
     low: number;

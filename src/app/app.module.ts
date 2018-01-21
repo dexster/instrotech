@@ -4,7 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
+import {LoggerService} from './services/logger/logger.service';
 
 import { routing, appRoutingProviders } from './app.routing';
 
@@ -23,8 +24,8 @@ import { SpectrumComponent } from './spectrum/spectrum.component';
 import { ChannelsComponent } from './channels/channels.component';
 import { UnitsComponent } from './units/units.component';
 // import { IQLService } from './iql';
-import { FFTService } from './fft';
-import { BandsService } from './bands';
+import { FFTService } from './services/fft';
+import { BandsService } from './services/bands';
 import { UnitSelectService } from './services/unit-select/unit-select.service';
 import { ChannelSelectService } from './services/channel-select/channel-select.service';
 
@@ -50,9 +51,10 @@ import { ChannelSelectService } from './services/channel-select/channel-select.s
         MatRadioModule,
         MatCheckboxModule,
         GraphConfigModule,
-        BarsConfigModule
-    ],
-    providers: [appRoutingProviders, FFTService, BandsService, UnitSelectService, ChannelSelectService],
+        BarsConfigModule,
+        LoggerModule.forRoot({serverLoggingUrl: '/api/logs', level: NgxLoggerLevel.DEBUG, serverLogLevel: NgxLoggerLevel.ERROR})
+],
+    providers: [appRoutingProviders, FFTService, BandsService, UnitSelectService, ChannelSelectService, LoggerService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

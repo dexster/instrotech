@@ -1,16 +1,19 @@
-import { AfterViewInit, Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import {AfterViewInit, Component, OnInit, OnDestroy} from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
+import {LoggerService} from '../services/logger/logger.service';
 import {UnitSelectService} from '../services/unit-select/unit-select.service';
 import {ChannelSelectService} from '../services/channel-select/channel-select.service';
-import { IQLService } from '../iql';
-import { FFTService } from '../fft';
+import {IQLService} from '../services/iql';
+import {FFTService} from '../services/fft';
 import * as d3 from 'd3';
 
 @Component({
     selector: 'spectrum',
     templateUrl: './spectrum.component.html',
     styleUrls: ['./spectrum.component.scss'],
-    providers: [ IQLService ]
+    providers: [IQLService, LoggerService]
+    // providers: [IQLService, LoggerService,
+    //     {provide: 'className', useValue: 'SpectrumComponent'}]
 })
 
 export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -21,8 +24,10 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     channels: Array<any>;
     unitSubscription: Subscription;
     channelSubscription: Subscription;
+    logger: any;
 
-    constructor(private iql: IQLService,
+    constructor(private loggerService: LoggerService,
+                private iql: IQLService,
                 private fft: FFTService,
                 private unitSelectService: UnitSelectService,
                 private channelSelectService: ChannelSelectService) {
@@ -32,6 +37,15 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
         this.channelSubscription = channelSelectService.channelsUpdated$.subscribe((selectedChannels) => {
             this.channels = selectedChannels;
         });
+
+        this.logger = {
+            debug: (message) => {
+                this.loggerService.debug(`${this.constructor.name} - ${message}`);
+            },
+            error: (message) => {
+                this.loggerService.error(`${this.constructor.name} - ${message}`);
+            }
+        }
     }
 
     ngOnInit() {
@@ -39,6 +53,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
         const boundDisconnected = this.disconnected.bind(this);
         const boundDispatch = this.dispatch.bind(this);
 
+        this.logger.debug('iql.connect');
         this.connection = this.iql.connect(boundConnected, boundDisconnected, boundDispatch);
     }
 
@@ -50,7 +65,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     connected() {
-        console.log('connected!');
+        this.logger.debug('connected!');
 
         this.iql.query([
             // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
@@ -62,7 +77,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     dispatch(data) {
-        // console.log(data);
+        this.logger.debug('dispatch!');
         switch (data.tag) {
             case 'fft':
                 this.fft.fft_draw(data.fft);
@@ -76,7 +91,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     disconnected() {
-        console.log('disconnected!');
+        this.logger.debug('disconnected!');
     }
 
     ngAfterViewInit() {
@@ -84,6 +99,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     render() {
+        this.logger.debug('render!');
         this.fft.fft_setup();
 
         d3.select(window).on('resize', () => {

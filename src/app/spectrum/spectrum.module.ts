@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {SpectrumComponent} from './spectrum.component';
-import {IQLService} from '../iql';
+import {IQLService} from '../services/iql';
 
 @NgModule({
     declarations: [
