@@ -7,7 +7,7 @@ export class IQLService {
     private audio;
     private isConnected = false;
     private isConnecting = false;
-    private watchdogTimer = null;
+    public watchdogTimer = null;
     private isListening = false;
 
 

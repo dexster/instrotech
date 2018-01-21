@@ -22,7 +22,7 @@ import { TrendComponent } from './trend/trend.component';
 import { SpectrumComponent } from './spectrum/spectrum.component';
 import { ChannelsComponent } from './channels/channels.component';
 import { UnitsComponent } from './units/units.component';
-import { IQLService } from './iql';
+// import { IQLService } from './iql';
 import { FFTService } from './fft';
 import { BandsService } from './bands';
 import { UnitSelectService } from './services/unit-select/unit-select.service';
@@ -52,7 +52,7 @@ import { ChannelSelectService } from './services/channel-select/channel-select.s
         GraphConfigModule,
         BarsConfigModule
     ],
-    providers: [appRoutingProviders, IQLService, FFTService, BandsService, UnitSelectService, ChannelSelectService],
+    providers: [appRoutingProviders, FFTService, BandsService, UnitSelectService, ChannelSelectService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

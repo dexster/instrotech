@@ -9,7 +9,8 @@ import * as d3 from 'd3';
 @Component({
     selector: 'spectrum',
     templateUrl: './spectrum.component.html',
-    styleUrls: ['./spectrum.component.scss']
+    styleUrls: ['./spectrum.component.scss'],
+    providers: [ IQLService ]
 })
 
 export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -42,6 +43,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        window.clearInterval(this.iql.watchdogTimer);
         this.connection.close();
         this.unitSubscription.unsubscribe();
         this.channelSubscription.unsubscribe();

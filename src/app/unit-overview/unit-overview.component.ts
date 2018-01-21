@@ -10,7 +10,8 @@ import {BARS_DATA} from '../barsConfig';
 @Component({
     selector: 'unit-overview',
     templateUrl: './unit-overview.component.html',
-    styleUrls: ['./unit-overview.component.scss']
+    styleUrls: ['./unit-overview.component.scss'],
+    providers: [ IQLService ]
 })
 export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -51,6 +52,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        window.clearInterval(this.iql.watchdogTimer);
         this.connection.close();
         this.subscription.unsubscribe();
     }
@@ -70,11 +72,11 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
         // console.log(data);
         switch (data.tag) {
             case 'metrics':
-                if (this.channelCount < 33) {
-                    this.metrics.push(data);
-                    this.createConnection(this.channelCount++);
-                } else {
-                    this.metrics[data.channel.id] = data;
+                // if (this.channelCount < 33) {
+                //     this.metrics.push(data);
+                //     this.createConnection(this.channelCount++);
+                // } else {
+                    this.metrics[0] = data;
                     this.datums = this.metrics.map((data, index) => {
                         // this.fft.fft_draw(data.fft);
                         // console.table(data);
@@ -115,7 +117,7 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
                     });
                     this.callBandDraw();
-                }
+                // }
 
                 // console.log(100 + maxmean);
                 // console.log( data.samples.find((x) => x.mean === maxmean) );

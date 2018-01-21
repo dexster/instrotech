@@ -36,8 +36,7 @@ export class BandsService {
         // this.width = parseInt(this.svg.style('width'), 10) - this.margin.left - this.margin.right;
         // this.height = parseInt(this.svg.style('height'), 10) - this.margin.top - this.margin.bottom;
         this.width = d3.select(selector).node().getBoundingClientRect().width - this.margin.left - this.margin.right;
-        // this.height = d3.select(selector).node().getBoundingClientRect().height - this.margin.top - this.margin.bottom;
-        this.height = 600;
+        this.height = d3.select(selector).node().getBoundingClientRect().height - this.margin.top - this.margin.bottom;
         this.svg
             .attr('width', this.width + this.margin.left + this.margin.right)
             .attr('height', this.height + this.margin.top + this.margin.bottom);
