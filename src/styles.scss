@@ -16,9 +16,7 @@ body {
   @include t5;
 }
 
-.content {
-  height: 100%;
-  width: 100%;
+.chart-content {
 }
 
 .main-container {
@@ -38,10 +36,9 @@ body {
 
 .chart-container {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(118deg, #313b54, $tertiary-color);
-  height: 100%;
   ::ng-deep svg {
     width: 100%;
     height: 100%;

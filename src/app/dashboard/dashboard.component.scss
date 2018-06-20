@@ -5,7 +5,7 @@
   grid-area: dashboard;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 400px 400px;
+    grid-template-rows: 320px 320px;
     grid-template-areas: "overview mimic"
     "spectrum trend";
     grid-gap: 24px 24px;
@@ -22,6 +22,7 @@
 
 mimic {
   grid-area: mimic;
+  padding: 16px;
 }
 
 .spectrum {
@@ -29,6 +30,7 @@ mimic {
   padding: 16px;
 }
 
-trend {
+.trend {
   grid-area: trend;
+  padding: 16px;
 }

@@ -77,7 +77,7 @@ export class SpectrumComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     dispatch(data) {
-        this.logger.debug('dispatch!');
+        // this.logger.debug('dispatch!');
         switch (data.tag) {
             case 'fft':
                 this.fft.fft_draw(data.fft);

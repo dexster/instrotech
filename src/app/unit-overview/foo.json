@@ -1,0 +1,75 @@
+{
+  "tag": "metrics1",
+  "key": "piu.1.audio.1",
+  "piu": {
+    "id": "1",
+    "name": ""
+  },
+  "channel": {
+    "id": 1,
+    "name": ""
+  },
+  "start": 1523419800000,
+  "end": 1523420400000,
+  "trace": [
+  {
+    "time": 1523420334110,
+    "s0": {
+      "value": 7.905900568348322,
+      "filtered": 1.9764751420870805,
+      "lowLimit": 6.25,
+      "highLimit": 12.5,
+      "status": "ERROR"
+    },
+    "s1": {
+      "value": 16.34077230095325,
+      "filtered": 4.085193075238313,
+      "lowLimit": 62.5,
+      "highLimit": 68.75,
+      "status": "OK"
+    }
+  },
+  {
+    "time": 1523420337289,
+    "s0": {
+      "value": 10.451212054771414,
+      "filtered": 4.095159370258164,
+      "lowLimit": 6.25,
+      "highLimit": 12.5,
+      "status": "ERROR"
+    },
+    "s1": {
+      "value": 14.159045751925998,
+      "filtered": 6.603656244410234,
+      "lowLimit": 62.5,
+      "highLimit": 68.75,
+      "status": "OK"
+    }
+  },
+  {
+    "time": 1523420340485,
+    "s0": {
+      "value": 10.255377756262078,
+      "filtered": 5.635213966759142,
+      "lowLimit": 6.25,
+      "highLimit": 12.5,
+      "status": "ERROR"
+    },
+    "s1": {
+      "value": 13.68255942569847,
+      "filtered": 8.373382039732293,
+      "lowLimit": 62.5,
+      "highLimit": 68.75,
+      "status": "OK"
+    }
+  }
+],
+  "upper": {
+    "top": 68.75,
+    "bottom": 62.5
+  },
+  "lower": {
+    "top": 12.5,
+    "bottom": 6.25
+  }
+}

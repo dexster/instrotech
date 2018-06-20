@@ -15,16 +15,21 @@ export class TrendComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.render();
+        // this.render();
     }
 
     render() {
         this.svg = d3.select("#trend > svg").remove();
         this.svg = d3.select("#trend").append('svg');
-        let margin = {top: 20, right: 40, bottom: 30, left: 40},
-            width = parseInt(this.svg.style("width")) - margin.left - margin.right,
-            height = parseInt(this.svg.style("height")) - margin.top - margin.bottom,
-            g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        const margin = {top: 20, right: 40, bottom: 50, left: 40};
+
+        let width = document.querySelector('trend .chart-container').getBoundingClientRect().width - margin.left - margin.right;
+        let height = document.querySelector('trend .chart-container').getBoundingClientRect().height - margin.top - margin.bottom;
+        let g = this.svg
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         let parseTime = d3.timeParse("%Y%m%d");
 
@@ -134,79 +139,5 @@ export class TrendComponent implements AfterViewInit {
             for (let i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
             return d;
         }
-    }
-
-
-    render2() {
-        this.svg = d3.select("#trend > svg").remove();
-        this.svg = d3.select("#trend").append('svg');
-        let margin = {top: 20, right: 40, bottom: 30, left: 40},
-            width = parseInt(this.svg.style("width")) - margin.left - margin.right,
-            height = parseInt(this.svg.style("height")) - margin.top - margin.bottom,
-            g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // parse the date / time
-        let parseTime = d3.timeParse("%d-%b-%y");
-
-// set the ranges
-        let x = d3.scaleTime().range([0, width]);
-        let y = d3.scaleLinear().range([height, 0]);
-
-// define the line
-        let valueline = d3.line()
-            .x(function (d) {
-                return x(d.date);
-            })
-            .y(function (d) {
-                return y(d.close);
-            });
-
-// Get the data
-        d3.csv("assets/trend.csv", (error, data) => {
-            if (error) throw error;
-
-            // format the data
-            data.forEach(function (d) {
-                d.date = parseTime(d.date);
-                d.close = +d.close;
-            });
-
-            // Scale the range of the data
-            x.domain(d3.extent(data, function (d) {
-                return d.date;
-            }));
-            y.domain([0, d3.max(data, function (d) {
-                return d.close;
-            })]);
-
-            // Add the valueline path.
-            this.svg.append("path")
-                .data([data])
-                .attr("class", "line")
-                .attr("d", valueline);
-
-            // Add the X Axis
-            this.svg.append("g")
-                .attr("class", this.graphConfig.xAxisName)
-                .style("stroke", this.graphConfig.stroke)
-                .style("border", this.graphConfig.borderWidth)
-                .style("border-style", this.graphConfig.borderStyle)
-                .style("border-color", this.graphConfig.borderColor)
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x));
-
-            // Add the Y Axis
-            this.svg.append("g")
-                .attr("class", this.graphConfig.yAxisName)
-                .style("stroke", this.graphConfig.stroke)
-                .style("border", this.graphConfig.borderWidth)
-                .style("border-style", this.graphConfig.borderStyle)
-                .style("border-color", this.graphConfig.borderColor)
-                .call(d3.axisLeft(y));
-        });
-
-        d3.select(window).on('resize', () => {
-            this.render();
-        });
     }
 }

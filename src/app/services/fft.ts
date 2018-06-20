@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as d3 from 'd3';
 
 @Injectable()
@@ -33,16 +33,10 @@ export class FFTService {
 
         // ... initialise static chart area
 
-        const margin = { top: 20, right: 40, bottom: 150, left: 40 };
-        // const width = document.documentElement.getBoundingClientRect().width - margin.left - margin.right;
-        // const height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom;
+        const margin = {top: 20, right: 40, bottom: 50, left: 40};
 
-        const width = d3.select('#spectrum').node().getBoundingClientRect().width - margin.left - margin.right;
-        let height = d3.select('#spectrum').node().getBoundingClientRect().height - margin.top - margin.bottom;
-
-        if (height <= 0) {
-            height = document.documentElement.getBoundingClientRect().height - margin.top - margin.bottom * 3;
-        }
+        let width = document.querySelector('spectrum .chart-container').getBoundingClientRect().width - margin.left - margin.right;
+        let height = document.querySelector('spectrum .chart-container').getBoundingClientRect().height - margin.top - margin.bottom;
 
         const x = d3.scaleLinear()
             .domain([0, 22000])
@@ -66,8 +60,8 @@ export class FFTService {
 
         const svg = d3.select('#spectrum').append('svg')
             .attr('id', 'fft')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
             .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -87,9 +81,13 @@ export class FFTService {
         // ... setup FFT line
 
         this.fft = d3.area()
-            .x(function (d) { return x(d.frequency); })
+            .x(function (d) {
+                return x(d.frequency);
+            })
             .y0(height)
-            .y1(function (d) { return y(100 + d.dbv); })
+            .y1(function (d) {
+                return y(100 + d.dbv);
+            })
             .curve(d3.curveCardinal);
 
         body.append('path')
@@ -101,9 +99,13 @@ export class FFTService {
         // ... setup MAX line
 
         this.max = d3.area()
-            .x(function (d) { return x(d.frequency); })
+            .x(function (d) {
+                return x(d.frequency);
+            })
             .y0(height)
-            .y1(function (d) { return y(d.max); })
+            .y1(function (d) {
+                return y(d.max);
+            })
             .curve(d3.curveCardinal);
 
         body.append('path')

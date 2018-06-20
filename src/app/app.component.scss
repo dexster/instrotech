@@ -5,9 +5,7 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 57px 57px auto;
-  grid-template-areas: "menu"
-  "header"
-  "dashboard";
+  grid-template-areas: "menu" "header" "dashboard";
   grid-gap: 24px 24px;
   width: 100vw;
   height: 100%;

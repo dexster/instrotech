@@ -11,7 +11,7 @@ import {BARS_DATA} from '../barsConfig';
     selector: 'unit-overview',
     templateUrl: './unit-overview.component.html',
     styleUrls: ['./unit-overview.component.scss'],
-    providers: [ IQLService ]
+    providers: [IQLService]
 })
 export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -40,7 +40,9 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit() {
         this.createConnection(this.channelCount);
-        this.callBandDraw = _.throttle(() => this.bands.bands_draw(this.datums), 3000);
+        this.callBandDraw = _.throttle(() => {
+            this.bands.bands_draw(this.datums), 3000
+        });
     }
 
     createConnection(channel: number) {
@@ -60,75 +62,82 @@ export class UnitOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     connected() {
         console.log('connected!');
 
-        this.iql.query([
+        let query = [];
+        for (let i = 1; i < 5; i++) {
+            query.push(`SELECT TRACE AS metrics${i} FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=${i} EVERY 3000 ms;`);
+            // query.push(`SELECT METRICS AS metrics${i} FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=${i} EVERY 3000 ms;`);
+        }
+
+        this.iql.query(query);
+        // this.iql.query([
             // 'SELECT MODULES AS modules FROM cache.SYSTEM EVERY 15000 ms',
             // 'SELECT FFT     AS fft     FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'// ,
-            `SELECT METRICS AS metrics FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=1 EVERY 3000 ms`,
-            // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
-        ]);
+            // `SELECT METRICS AS metrics1 FROM cache.AUDIO  WHERE PIU.id=${this.unit} AND CHANNEL=1 EVERY 3000 ms;`,
+             // 'SELECT TRACE   AS chart   FROM cache.AUDIO  WHERE PIU.id=1 AND CHANNEL=1 EVERY 1000 ms'
+        // ]);
     }
 
     dispatch(data) {
         // console.log(data);
-        switch (data.tag) {
-            case 'metrics':
-                // if (this.channelCount < 33) {
-                //     this.metrics.push(data);
-                //     this.createConnection(this.channelCount++);
-                // } else {
-                    this.metrics[0] = data;
-                    this.datums = this.metrics.map((data, index) => {
-                        // this.fft.fft_draw(data.fft);
-                        // console.table(data);
-                        // console.table(data.samples.map((x) => x.mean));
-                        const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => Math.max(a, b));
-                        // console.log(maxmean);
-
-                        let datum;
-                        if (maxmean <= this.thresholds.low) {
-                            // datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
-                            datum = {channel: index + 1, low: maxmean, medium: 0, high: 0, over: 0};
-                        }
-                        if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
-                            datum = {channel: index + 1, low: 0, medium: maxmean, high: 0, over: 0};
-                        }
-                        if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
-                            datum = {
-                                channel: index + 1,
-                                low: 0,
-                                medium: this.thresholds.medium,
-                                high: maxmean - this.thresholds.medium,
-                                over: 0
-                            };
-                        }
-                        if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
-                            datum = {
-                                channel: index + 1,
-                                low: 0,
-                                medium: this.thresholds.medium,
-                                high: this.thresholds.high - this.thresholds.medium,
-                                over: maxmean - this.thresholds.high
-                            };
-                        }
-
-                        return datum;
-
-                        // const datum2 = {channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2};
-
+        // switch (data.tag) {
+        //     case 'metrics1':
+                this.metrics[data.channel.id-1] = data;
+                this.datums = this.metrics.map((data, index) => {
+                    // this.fft.fft_draw(data.fft);
+                    // console.table(data);
+                    // console.table(data.samples.map((x) => x.mean));
+                    const maxmean = 100 + data.samples.map((x) => x.mean).reduce((a, b) => {
+                        return Math.max(a, b)
                     });
+                    // console.log(maxmean);
+
+                    let datum;
+                    if (maxmean <= this.thresholds.low) {
+                        datum = {channel: data.channel.id, low: maxmean, medium: 0, high: 0, over: 0};
+                        // datum = {channel: index + 1, low: maxmean, medium: 0, high: 0, over: 0};
+                    }
+                    if (maxmean >= this.thresholds.low && maxmean < this.thresholds.medium) {
+                        datum = {channel: data.channel.id, low: 0, medium: maxmean, high: 0, over: 0};
+                    }
+                    if (maxmean >= this.thresholds.medium && maxmean < this.thresholds.high) {
+                        datum = {
+                            channel: data.channel.id,
+                            low: 0,
+                            medium: this.thresholds.medium,
+                            high: maxmean - this.thresholds.medium,
+                            over: 0
+                        };
+                    }
+                    if (maxmean >= this.thresholds.high && maxmean < this.thresholds.over) {
+                        datum = {
+                            channel: data.channel.id,
+                            low: 0,
+                            medium: this.thresholds.medium,
+                            high: this.thresholds.high - this.thresholds.medium,
+                            over: maxmean - this.thresholds.high
+                        };
+                    }
+
+                    return datum;
+
+                    // const datum2 = {channel: 2, low: datum.low, medium: datum.medium, high: datum.high, over: datum.over / 2};
+
+                });
+                if (this.datums.length === 4) {
                     this.callBandDraw();
+                }
                 // }
 
                 // console.log(100 + maxmean);
                 // console.log( data.samples.find((x) => x.mean === maxmean) );
                 // this.bands.bands_draw(data);
-                break;
+                // break;
             /*
                         case 'metrics':
                             SpectrumComponent.fft.metrics_draw(data.samples);
                             break;
             */
-        }
+        // }
     }
 
     disconnected() {
